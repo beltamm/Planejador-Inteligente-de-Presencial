@@ -9,97 +9,100 @@
   <style>
     body { font-family: 'Inter', sans-serif; }
     .step-pane { display: none; }
-    .step-pane.active { display: block; }
+    .step-pane.active { display: block; animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .day-cell { transition: all 0.12s ease; user-select: none; }
+    .day-cell:hover:not(.weekend-locked) { transform: translateY(-2px); }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 flex flex-col items-center justify-center">
 
-  <div class="max-w-2xl w-full space-y-6">
+  <div class="max-w-3xl w-full space-y-5">
     
     <!-- Header -->
     <header class="text-center space-y-2 border-b border-slate-800 pb-4">
-      <h1 class="text-2xl font-bold text-white tracking-tight">Planejador Inteligente de Presencial</h1>
-      <p class="text-slate-400 text-xs">Organize sua escala de trabalho híbrido com feriados oficiais e sugestão inteligente.</p>
+      <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Planejador Inteligente de Presencial</h1>
+      <p class="text-slate-400 text-xs md:text-sm">Cálculo real sobre dias úteis com feriados nacionais, móveis, estaduais e municipais.</p>
       
-      <!-- Indicadores -->
-      <div class="flex items-center justify-center gap-2 pt-2">
-        <span id="ind1" class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white">1. Local & Meta</span>
+      <!-- Stepper Clicável -->
+      <div class="flex items-center justify-center gap-2 pt-2 flex-wrap">
+        <button type="button" data-goto="1" class="step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white transition">1. Local & Meta</button>
         <span class="text-slate-600">→</span>
-        <span id="ind2" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-500 border border-slate-800">2. Preferências</span>
+        <button type="button" data-goto="2" class="step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition">2. Favoritos & Já Fui</button>
         <span class="text-slate-600">→</span>
-        <span id="ind3" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-500 border border-slate-800">3. Calendário</span>
+        <button type="button" data-goto="3" class="step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition">3. Calendário & Agenda</button>
       </div>
     </header>
 
-    <!-- Wizard Card -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative">
+    <!-- Toast de Humor (Sábado/Domingo) -->
+    <div id="humorToast" class="hidden bg-amber-500/15 border border-amber-500/40 text-amber-200 text-xs px-4 py-3 rounded-xl text-center font-medium shadow-lg">
+      🚨 <span id="humorText"></span>
+    </div>
+
+    <!-- Container Principal -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 md:p-7 shadow-2xl">
       
-      <!-- Banner de Piada / Humor para Sáb/Dom -->
-      <div id="humorBanner" class="hidden absolute -top-12 left-0 right-0 bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs px-4 py-2 rounded-xl text-center transition-all duration-300">
-        ⚠️ <span id="humorText"></span>
-      </div>
+      <!-- ================= PASSO 1: LOCALIDADE & META ================= -->
+      <div id="step1" class="step-pane active space-y-6">
+        <div>
+          <h2 class="text-lg font-bold text-white">Passo 1: Onde você trabalha e qual é a regra?</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Carregamos todos os estados e municípios (via IBGE) e descontamos os feriados da sua região.</p>
+        </div>
 
-      <!-- ETAPA 1 -->
-      <div id="pane1" class="step-pane active space-y-5">
-        <h2 class="text-base font-bold text-white">Passo 1: Localidade e Meta</h2>
-        
-        <div class="grid grid-cols-2 gap-3">
+        <!-- Seleção de Mês de Referência + UF + Cidade -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label class="text-xs text-slate-400 block mb-1">Estado (UF)</label>
-            <select id="inputUf" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-              <option value="PE" selected>Pernambuco (PE)</option>
-              <option value="SP">São Paulo (SP)</option>
-              <option value="RJ">Rio de Janeiro (RJ)</option>
-              <option value="MG">Minas Gerais (MG)</option>
-              <option value="BA">Bahia (BA)</option>
-            </select>
+            <label class="text-xs font-medium text-slate-300 block mb-1">Mês de Planejamento</label>
+            <input type="month" id="inputMonthYear" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
           </div>
           <div>
-            <label class="text-xs text-slate-400 block mb-1">Município</label>
-            <select id="inputCity" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-              <option value="Recife" selected>Recife</option>
-            </select>
+            <label class="text-xs font-medium text-slate-300 block mb-1">Estado (UF)</label>
+            <select id="selectUf" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"></select>
+          </div>
+          <div>
+            <label class="text-xs font-medium text-slate-300 block mb-1">Município</label>
+            <select id="selectCity" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500"></select>
           </div>
         </div>
 
-        <div class="space-y-2">
-          <label class="text-xs text-slate-400 block">Tipo de Meta</label>
+        <!-- Preview de Feriados Detectados no Mês -->
+        <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div class="text-xs text-slate-300">
+            <span class="font-semibold text-rose-400">🎉 Feriados detectados neste mês:</span>
+            <span id="detectedHolidaysPreview" class="text-slate-400 ml-1">Carregando...</span>
+          </div>
+        </div>
+
+        <!-- Tipo de Meta -->
+        <div class="space-y-3 pt-2 border-t border-slate-800">
+          <label class="text-xs font-medium text-slate-300 block">Como a sua empresa cobra o presencial?</label>
           <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
-            <button type="button" id="btnModePct" class="py-2 rounded-lg text-xs font-semibold bg-indigo-600 text-white transition">Porcentagem (%)</button>
-            <button type="button" id="btnModeWk" class="py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">Dias por Semana</button>
+            <button type="button" id="btnModePct" class="py-2.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white transition">Por % do Mês Útil</button>
+            <button type="button" id="btnModeWk" class="py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">Dias por Semana</button>
           </div>
-        </div>
 
-        <div id="boxPct" class="space-y-2">
-          <div class="flex justify-between items-center text-xs">
-            <span class="text-slate-300">Meta Desejada (%):</span>
-            <div class="flex items-center gap-1">
-              <input type="number" id="numPct" min="10" max="100" step="5" value="40" class="w-16 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-center font-bold text-indigo-400 text-xs focus:outline-none focus:border-indigo-500">
-              <span class="text-indigo-400 font-bold">%</span>
+          <!-- Controle Porcentagem (Slider + Input Digitável) -->
+          <div id="boxPct" class="space-y-2 pt-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-300">Arraste ou digite a porcentagem exata:</span>
+              <div class="flex items-center gap-1">
+                <input type="number" id="numPct" min="1" max="100" value="40" class="w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-center font-bold text-indigo-400 text-sm focus:outline-none focus:border-indigo-500">
+                <span class="text-indigo-400 font-bold text-sm">%</span>
+              </div>
+            </div>
+            <input type="range" id="rangePct" min="1" max="100" step="1" value="40" class="w-full accent-indigo-500 cursor-pointer">
+            <div class="flex justify-between text-[10px] text-slate-500">
+              <span>20% (1x/sem)</span><span>40% (2x/sem)</span><span>60% (3x/sem)</span><span>80% (4x/sem)</span><span>100%</span>
             </div>
           </div>
-          <input type="range" id="rangePct" min="10" max="100" step="5" value="40" class="w-full accent-indigo-500 cursor-pointer">
-        </div>
 
-        <div id="boxWk" class="space-y-2 hidden">
-          <div class="flex justify-between items-center text-xs">
-            <span class="text-slate-300">Frequência Semanal (dias):</span>
-            <div class="flex items-center gap-1">
-              <input type="number" id="numWk" min="1" max="7" step="1" value="2" class="w-16 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-center font-bold text-indigo-400 text-xs focus:outline-none focus:border-indigo-500">
-              <span class="text-indigo-400 font-bold">dias</span>
+          <!-- Controle Dias/Semana (Slider + Input Digitável) -->
+          <div id="boxWk" class="space-y-2 pt-2 hidden">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-300">Arraste ou digite os dias por semana:</span>
+              <div class="flex items-center gap-1">
+                <input type="number" id="numWk" min="1" max="7" value="2" class="w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-center font-bold text-indigo-400 text-sm focus:outline-none focus:border-indigo-500">
+                <span class="text-indigo-400 font-bold text-xs">dias/sem</span>
+              </div>
             </div>
-          </div>
-          <input type="range" id="rangeWk" min="1" max="7" step="1" value="2" class="w-full accent-indigo-500 cursor-pointer">
-        </div>
-
-        <div class="flex justify-end pt-3 border-t border-slate-800">
-          <button type="button" id="toStep2" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition">
-            Avançar →
-          </button>
-        </div>
-      </div>
-
-      <!-- ETAPA 2 -->
-      <div id="pane2" class="step-pane space-y-5">
-        <h2 class="text-base font-bold text-white">Passo 2: Dias Preferidos</h2>
-        <p class="text-xs text-
+            <input type="range" id="rangeWk" min="1" max="7"
