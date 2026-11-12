@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Planejador Inteligente de Presencial</title>
+  <title>PIP • Planejador Inteligente Presencial</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Inter', sans-serif; }
     .step-pane { display: none; }
@@ -13,24 +13,59 @@
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
     .day-cell { transition: all 0.12s ease; user-select: none; }
     .day-cell:hover { transform: translateY(-2px); }
+    .pip-logo-glow { box-shadow: 0 0 35px -5px rgba(99, 102, 241, 0.45); }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 flex flex-col items-center justify-center">
 
   <div class="max-w-3xl w-full space-y-5">
     
-    <!-- Header -->
-    <header class="text-center space-y-2 border-b border-slate-800 pb-4">
-      <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Planejador Inteligente de Presencial</h1>
-      <p class="text-slate-400 text-xs md:text-sm">Cálculo real sobre dias úteis com feriados nacionais, móveis, estaduais e municipais.</p>
+    <!-- ================= HEADER & LOGO PIP ================= -->
+    <header class="text-center space-y-3 border-b border-slate-800/80 pb-5">
+      <div class="inline-flex flex-col sm:flex-row items-center justify-center gap-3.5">
+        <!-- Ícone / Logo Vetorial do PIP -->
+        <div class="relative group">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-600 to-emerald-500 p-[2px] pip-logo-glow transition-transform duration-300 group-hover:scale-105">
+            <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center relative overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/20 via-transparent to-emerald-500/20"></div>
+              <svg class="w-9 h-9 text-white relative z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="17" rx="3" class="stroke-indigo-400"/>
+                <path d="M8 2v4M16 2v4M3 9h18" class="stroke-slate-400" stroke-linecap="round"/>
+                <circle cx="8" cy="13.5" r="1.3" class="fill-emerald-400 stroke-none"/>
+                <circle cx="12" cy="13.5" r="1.3" class="fill-indigo-400 stroke-none"/>
+                <circle cx="8" cy="17.5" r="1.3" class="fill-indigo-400 stroke-none"/>
+                <path d="M14.5 16.5l1.5 1.5 3-3.2" class="stroke-emerald-400" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <span class="absolute -bottom-1 -right-1 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider bg-emerald-500 text-slate-950 rounded-md shadow">
+            PRO
+          </span>
+        </div>
+
+        <!-- Tipografia da Marca PIP -->
+        <div class="text-center sm:text-left">
+          <div class="flex items-center justify-center sm:justify-start gap-2">
+            <span class="text-3xl md:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-300 to-emerald-400 bg-clip-text text-transparent">
+              PIP
+            </span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">
+              Planejador Inteligente Presencial
+            </span>
+          </div>
+          <p class="text-slate-400 text-xs md:text-sm mt-1">
+            Cálculo real sobre dias úteis • Feriados oficiais, banco de horas e sincronização com Agenda.
+          </p>
+        </div>
+      </div>
       
       <!-- Stepper Clicável -->
       <div class="flex items-center justify-center gap-2 pt-2 flex-wrap">
-        <button type="button" data-goto="1" class="step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white transition">1. Local & Meta</button>
-        <span class="text-slate-600">→</span>
-        <button type="button" data-goto="2" class="step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition">2. Favoritos & Já Fui</button>
-        <span class="text-slate-600">→</span>
-        <button type="button" data-goto="3" class="step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition">3. Calendário & Agenda</button>
+        <button type="button" data-goto="1" class="step-nav px-3.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white transition">1. Local & Meta</button>
+        <span class="text-slate-600">&rarr;</span>
+        <button type="button" data-goto="2" class="step-nav px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition">2. Favoritos & Já Fui</button>
+        <span class="text-slate-600">&rarr;</span>
+        <button type="button" data-goto="3" class="step-nav px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition">3. Calendário & Agenda</button>
       </div>
     </header>
 
@@ -49,7 +84,6 @@
           <p class="text-xs text-slate-400 mt-0.5">Escolha o mês, seu estado e município para descontarmos os feriados oficiais da base de cálculo.</p>
         </div>
 
-        <!-- Seleção de Mês + Ano + UF + Cidade (100% Nativos e Pré-carregados) -->
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
           <div class="sm:col-span-3">
             <label class="text-xs font-medium text-slate-300 block mb-1">Mês</label>
@@ -91,7 +125,6 @@
           </div>
         </div>
 
-        <!-- Preview de Feriados Detectados no Mês -->
         <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div class="text-xs text-slate-300">
             <span class="font-semibold text-rose-400">🎉 Feriados neste mês:</span>
@@ -99,7 +132,6 @@
           </div>
         </div>
 
-        <!-- Tipo de Meta -->
         <div class="space-y-3 pt-2 border-t border-slate-800">
           <label class="text-xs font-medium text-slate-300 block">Como a sua empresa cobra o presencial?</label>
           <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
@@ -107,7 +139,6 @@
             <button type="button" id="btnModeWk" class="py-2.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">Dias por Semana</button>
           </div>
 
-          <!-- Controle Porcentagem (Slider + Input Digitável) -->
           <div id="boxPct" class="space-y-2 pt-2">
             <div class="flex justify-between items-center text-xs">
               <span class="text-slate-300">Arraste ou digite a porcentagem exata:</span>
@@ -122,7 +153,6 @@
             </div>
           </div>
 
-          <!-- Controle Dias/Semana (Slider + Input Digitável) -->
           <div id="boxWk" class="space-y-2 pt-2 hidden">
             <div class="flex justify-between items-center text-xs">
               <span class="text-slate-300">Arraste ou digite os dias por semana:</span>
@@ -137,7 +167,7 @@
 
         <div class="flex justify-end pt-4 border-t border-slate-800">
           <button type="button" id="btnNext1" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs md:text-sm font-semibold text-white transition">
-            Avançar (Enter) →
+            Avançar (Enter) &rarr;
           </button>
         </div>
       </div>
@@ -146,10 +176,9 @@
       <div id="step2" class="step-pane space-y-6">
         <div>
           <h2 class="text-lg font-bold text-white">Passo 2: Suas Preferências e Dias Já Realizados</h2>
-          <p class="text-xs text-slate-400 mt-0.5">A sugestão inteligente vai usar seus dias favoritos para montar a agenda perfeita.</p>
+          <p class="text-xs text-slate-400 mt-0.5">O PIP vai priorizar seus dias favoritos para montar a agenda perfeita.</p>
         </div>
 
-        <!-- Dias Favoritos (Dom a Sáb) -->
         <div class="space-y-2">
           <label class="text-xs font-medium text-slate-300 block">Quais dias da semana você prefere ir presencialmente?</label>
           <div class="grid grid-cols-7 gap-1.5" id="favDaysGrid">
@@ -163,7 +192,6 @@
           </div>
         </div>
 
-        <!-- "Já fui X dias" + Prévia da Conta -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-800">
           <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
             <div class="flex justify-between items-center">
@@ -184,10 +212,10 @@
 
         <div class="flex justify-between pt-4 border-t border-slate-800">
           <button type="button" id="btnBack2" class="px-5 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-300 transition">
-            ← Voltar
+            &larr; Voltar
           </button>
           <button type="button" id="btnNext2" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs md:text-sm font-semibold text-white transition">
-            Gerar Calendário Sugerido (Enter) →
+            Gerar Calendário Sugerido (Enter) &rarr;
           </button>
         </div>
       </div>
@@ -195,7 +223,6 @@
       <!-- ================= PASSO 3: CALENDÁRIO INTELIGENTE ================= -->
       <div id="step3" class="step-pane space-y-5">
         
-        <!-- Topo do Calendário -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
           <div>
             <div class="flex items-center gap-2">
@@ -206,11 +233,11 @@
           </div>
 
           <div class="flex items-center gap-1.5">
-            <button type="button" id="btnPrevMonth" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 hover:bg-slate-800 rounded-lg text-xs text-slate-300 transition">←</button>
+            <button type="button" id="btnPrevMonth" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 hover:bg-slate-800 rounded-lg text-xs text-slate-300 transition">&larr;</button>
             <button type="button" id="btnAutoFill" class="px-3 py-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 rounded-lg text-xs font-semibold text-indigo-300 transition">
               ✨ Recalcular Sugestão IA
             </button>
-            <button type="button" id="btnNextMonth" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 hover:bg-slate-800 rounded-lg text-xs text-slate-300 transition">→</button>
+            <button type="button" id="btnNextMonth" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 hover:bg-slate-800 rounded-lg text-xs text-slate-300 transition">&rarr;</button>
           </div>
         </div>
 
@@ -270,20 +297,17 @@
           </div>
           <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
             <button type="button" id="btnBack3" class="px-3.5 py-2 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-300 transition">
-              ← Ajustar Regras
+              &larr; Ajustar Regras
             </button>
             <div class="flex flex-wrap items-center gap-2">
-              <button type="button" id="btnCopyText" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition">
+              <button type="button" id="btnCopyText" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition">
                 📋 Copiar p/ Slack/Teams
               </button>
               <button type="button" id="btnShareUrl" class="px-3.5 py-2 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-semibold text-slate-200 transition">
                 🔗 Copiar Link da Escala
               </button>
-              <button type="button" id="btnGoogleCal" class="px-3.5 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-xs font-semibold text-blue-300 transition">
-                📅 Google Agenda
-              </button>
-              <button type="button" id="btnDownloadIcs" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-xs font-semibold text-emerald-300 transition">
-                ⬇️ Baixar .ICS (Todos)
+              <button type="button" id="btnOpenCalModal" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-xs font-bold text-white shadow-lg transition flex items-center gap-1.5">
+                📅 Adicionar Todos na Agenda (<span id="lblCountCalBtn">0</span>)
               </button>
             </div>
           </div>
@@ -294,9 +318,56 @@
     </div>
   </div>
 
+  <!-- ================= MODAL: ADICIONAR TODOS OS DIAS NA AGENDA ================= -->
+  <div id="calendarModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+      <div class="flex items-start justify-between border-b border-slate-800 pb-3">
+        <div>
+          <h3 class="text-base font-bold text-white">📅 Sincronizar Todos os Dias na Agenda</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Escolha como prefere jogar os seus <span id="modalDaysCount" class="font-bold text-indigo-400">0</span> dias planejados no Google Agenda, Outlook ou Teams.</p>
+        </div>
+        <button type="button" id="btnCloseCalModal" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button>
+      </div>
+
+      <!-- Opção 1: Evento Único Recorrente no Google Agenda (1 Clique) -->
+      <div class="bg-indigo-950/25 border border-indigo-500/40 rounded-xl p-4 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-indigo-300">⚡ Opção 1: Criar Série de Eventos no Google Agenda (1 Clique)</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-semibold">Mais Rápido</span>
+        </div>
+        <p class="text-[11px] text-slate-300">
+          Abre o Google Agenda já com todos os dias da semana selecionados (<span id="modalRruleDaysDesc" class="text-indigo-300 font-semibold"></span>) marcados em repetição até o fim do mês!
+        </p>
+        <button type="button" id="btnGoogleRecurring" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white transition">
+          🚀 Abrir Série Completa no Google Agenda
+        </button>
+      </div>
+
+      <!-- Opção 2: Arquivo .ICS com TODAS as datas exatas -->
+      <div class="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-4 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-emerald-300">📦 Opção 2: Importar Pacote Completo (.ICS)</span>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold">Google / Outlook / Teams</span>
+        </div>
+        <p class="text-[11px] text-slate-300">
+          Baixa um arquivo único contendo <strong>exatamente cada um dos dias</strong> que você marcou no calendário. Basta clicar duas vezes no arquivo (Outlook/Mac) ou importar no Google Agenda.
+        </p>
+        <button type="button" id="btnModalDownloadIcs" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white transition">
+          ⬇️ Baixar Arquivo .ICS com Todos os Dias
+        </button>
+      </div>
+
+      <!-- Opção 3: Links Individuais Rápidos -->
+      <div class="space-y-2">
+        <span class="text-xs font-semibold text-slate-400 block">📌 Opção 3: Adicionar dia por dia no Google Agenda:</span>
+        <div id="modalIndividualLinks" class="max-h-36 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 gap-2 pr-1"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ============================================================================
-    // 1. BASE COMPLETA DE ESTADOS, MUNICÍPIOS E FERIADOS (100% SÍNCRONA + IBGE)
+    // 1. BASE DE ESTADOS, MUNICÍPIOS E FERIADOS
     // ============================================================================
     const STATES = [
       { uf: 'AC', name: 'Acre', cities: ['Rio Branco', 'Cruzeiro do Sul', 'Sena Madureira', 'Tarauacá'] },
@@ -485,9 +556,9 @@
     }
 
     // ============================================================================
-    // 2. ESTADO GLOBAL E INICIALIZAÇÃO SÍNCRONA (ZERO DELAY)
+    // 2. ESTADO GLOBAL E INICIALIZAÇÃO SÍNCRONA
     // ============================================================================
-    const STORAGE_KEY = 'planejador_presencial_pro_v2';
+    const STORAGE_KEY = 'pip_planejador_pro_v3';
     const ibgeCache = {};
 
     const store = {
@@ -513,7 +584,6 @@
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. Carrega estado e preenche TUDO de forma 100% síncrona e imediata
       loadFromStorageOrUrl();
       populateStatesSync();
       populateCitiesSync(store.uf, store.city);
@@ -522,10 +592,8 @@
       setBrush('office');
       updateHolidaysPreview();
 
-      // 2. Busca lista completa de municípios do IBGE em background sem travar nada
       fetchIbgeCitiesInBackground(store.uf, store.city);
 
-      // 3. Eventos Passo 1: Mês, Ano, UF, Cidade
       document.getElementById('selectMonth').onchange = (e) => {
         store.month = Number(e.target.value);
         updateHolidaysPreview();
@@ -552,7 +620,6 @@
         saveState();
       };
 
-      // Alternar modo % vs Dias/Semana
       document.getElementById('btnModePct').onclick = () => {
         store.mode = 'pct';
         syncStep1Inputs();
@@ -564,7 +631,6 @@
         saveState();
       };
 
-      // Sincronia Slider <-> Número Digitado (%)
       const rangePct = document.getElementById('rangePct');
       const numPct = document.getElementById('numPct');
       rangePct.oninput = (e) => {
@@ -573,15 +639,12 @@
         saveState();
       };
       numPct.oninput = (e) => {
-        let val = Number(e.target.value);
-        if (val < 1) val = 1;
-        if (val > 100) val = 100;
+        let val = Math.min(100, Math.max(1, Number(e.target.value) || 1));
         store.valPct = val;
         rangePct.value = val;
         saveState();
       };
 
-      // Sincronia Slider <-> Número Digitado (Dias/Semana)
       const rangeWk = document.getElementById('rangeWk');
       const numWk = document.getElementById('numWk');
       rangeWk.oninput = (e) => {
@@ -590,22 +653,18 @@
         saveState();
       };
       numWk.oninput = (e) => {
-        let val = Number(e.target.value);
-        if (val < 1) val = 1;
-        if (val > 7) val = 7;
+        let val = Math.min(7, Math.max(1, Number(e.target.value) || 1));
         store.valWk = val;
         rangeWk.value = val;
         saveState();
       };
 
-      // Input "Já fui X dias" no Passo 2
       document.getElementById('inputAlreadyWent').oninput = (e) => {
         store.alreadyWent = Math.max(0, Math.min(31, Number(e.target.value) || 0));
         updateStep2Preview();
         saveState();
       };
 
-      // Botões de Dias Favoritos (Dom a Sáb)
       document.querySelectorAll('.fav-btn').forEach(btn => {
         btn.onclick = () => {
           const dow = Number(btn.dataset.dow);
@@ -621,7 +680,6 @@
         };
       });
 
-      // Botões de Navegação do Wizard
       document.getElementById('btnNext1').onclick = () => goToStep(2);
       document.getElementById('btnBack2').onclick = () => goToStep(1);
       document.getElementById('btnNext2').onclick = () => {
@@ -638,7 +696,6 @@
         };
       });
 
-      // Suporte à tecla ENTER para avançar etapas
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') {
           e.preventDefault();
@@ -647,7 +704,6 @@
         }
       });
 
-      // Controles do Passo 3 (Calendário)
       document.querySelectorAll('.brush-btn').forEach(btn => {
         btn.onclick = () => setBrush(btn.dataset.brush);
       });
@@ -680,14 +736,16 @@
         renderCalendar();
       };
 
+      // Ações de Compartilhamento e Modal de Agenda
       document.getElementById('btnCopyText').onclick = copySummaryText;
       document.getElementById('btnShareUrl').onclick = copyShareableLink;
-      document.getElementById('btnGoogleCal').onclick = openGoogleCalendarTemplate;
-      document.getElementById('btnDownloadIcs').onclick = downloadIcsFile;
+      document.getElementById('btnOpenCalModal').onclick = openCalendarModal;
+      document.getElementById('btnCloseCalModal').onclick = () => document.getElementById('calendarModal').classList.add('hidden');
+      document.getElementById('btnModalDownloadIcs').onclick = downloadIcsFile;
     });
 
     // ============================================================================
-    // 3. POPULAÇÃO SÍNCRONA IMEDIATA + ENRIQUECIMENTO IBGE EM SEGUNDO PLANO
+    // 3. POPULAÇÃO SÍNCRONA + IBGE EM SEGUNDO PLANO
     // ============================================================================
     function populateStatesSync() {
       const sel = document.getElementById('selectUf');
@@ -783,11 +841,11 @@
       document.querySelectorAll('.step-nav').forEach(btn => {
         const s = Number(btn.dataset.goto);
         if (s === stepNum) {
-          btn.className = "step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white transition";
+          btn.className = "step-nav px-3.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white transition";
         } else if (s < stepNum) {
-          btn.className = "step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 transition";
+          btn.className = "step-nav px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 transition";
         } else {
-          btn.className = "step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition";
+          btn.className = "step-nav px-3.5 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition";
         }
       });
 
@@ -800,7 +858,7 @@
       const remaining = Math.max(0, stats.requiredDays - store.alreadyWent);
       document.getElementById('previewCalcBadge').textContent = `Meta: ${stats.requiredDays} dias no mês`;
       document.getElementById('previewCalcDesc').textContent =
-        `O mês tem ${stats.availableWorkdays} dias úteis (já descontando ${stats.deductedDays} feriado(s) em dia de semana). ` +
+        `O mês tem ${stats.availableWorkdays} dias úteis (descontando ${stats.deductedDays} feriado(s) em dia de semana). ` +
         (store.alreadyWent > 0 ? `Como você já foi ${store.alreadyWent}d, faltam ${remaining} dia(s) para planejar.` : `Vamos sugerir ${stats.requiredDays} dias presenciais.`);
     }
 
@@ -936,7 +994,7 @@
     }
 
     // ============================================================================
-    // 5. RENDERIZAÇÃO DO CALENDÁRIO E EXPORTAÇÃO
+    // 5. RENDERIZAÇÃO DO CALENDÁRIO & MODAL MULTI-EVENTOS GOOGLE AGENDA
     // ============================================================================
     function setBrush(brush) {
       store.activeBrush = brush;
@@ -1050,6 +1108,7 @@
       }
 
       const listDates = getSelectedDatesFormatted();
+      document.getElementById('lblCountCalBtn').textContent = `${listDates.length} dias`;
       document.getElementById('txtSummaryPreview').textContent = listDates.length > 0
         ? `📅 Presenciais (${listDates.length}d): ${listDates.map(i => i.label).join(', ')}`
         : 'Nenhum dia presencial marcado neste mês.';
@@ -1059,21 +1118,89 @@
       const { year, month } = store;
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       const result = [];
+      const dowNamesShort = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+      const rruleCodes = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+
       for (let d = 1; d <= daysInMonth; d++) {
         const key = formatDateKey(year, month, d);
         const st = store.days[key];
         if (st === 'office' || st === 'done') {
+          const dtObj = new Date(year, month, d);
+          const dow = dtObj.getDay();
           const dd = String(d).padStart(2, '0');
           const mm = String(month + 1).padStart(2, '0');
           result.push({
             key,
             day: d,
+            dow,
+            dowName: dowNamesShort[dow],
+            rruleCode: rruleCodes[dow],
             status: st,
             label: `${dd}/${mm}${st === 'done' ? '(✓)' : ''}`
           });
         }
       }
       return result;
+    }
+
+    // Abre o Modal Inteligente para sincronizar TODOS os dias de uma vez
+    function openCalendarModal() {
+      const list = getSelectedDatesFormatted();
+      if (list.length === 0) {
+        alert('Marque pelo menos um dia presencial no calendário primeiro!');
+        return;
+      }
+
+      document.getElementById('modalDaysCount').textContent = list.length;
+
+      // Descobre todos os dias da semana únicos selecionados para montar a regra RRULE
+      const uniqueDows = [...new Set(list.map(i => i.dow))];
+      const rruleCodes = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+      const dowNames = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+
+      const byDayStr = uniqueDows.map(d => rruleCodes[d]).join(',');
+      const byDayNames = uniqueDows.map(d => dowNames[d]).join(', ');
+      document.getElementById('modalRruleDaysDesc').textContent = byDayNames;
+
+      // Configura o botão de Série Recorrente no Google Agenda (marca todos os dias do mês de 1 vez)
+      const firstItem = list[0];
+      const nextDayObj = new Date(store.year, store.month, firstItem.day + 1);
+      const startStr = firstItem.key.replace(/-/g, '');
+      const endStr = `${nextDayObj.getFullYear()}${String(nextDayObj.getMonth() + 1).padStart(2, '0')}${String(nextDayObj.getDate()).padStart(2, '0')}`;
+      const lastDayMonth = new Date(store.year, store.month + 1, 0).getDate();
+      const untilStr = `${store.year}${String(store.month + 1).padStart(2, '0')}${String(lastDayMonth).padStart(2, '0')}T235959Z`;
+
+      const title = encodeURIComponent(`🏢 Presencial (${store.city})`);
+      const details = encodeURIComponent(`Escala planejada via PIP (${list.length} dias no mês): ${list.map(i => i.label).join(', ')}`);
+      const recur = encodeURIComponent(`RRULE:FREQ=WEEKLY;BYDAY=${byDayStr};UNTIL=${untilStr}`);
+
+      document.getElementById('btnGoogleRecurring').onclick = () => {
+        const gUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}&recur=${recur}`;
+        window.open(gUrl, '_blank');
+      };
+
+      // Preenche os botões individuais rápidos caso a pessoa queira clicar nos dias avulsos
+      const container = document.getElementById('modalIndividualLinks');
+      container.innerHTML = '';
+      list.forEach(item => {
+        const dStart = item.key.replace(/-/g, '');
+        const nObj = new Date(store.year, store.month, item.day + 1);
+        const dEnd = `${nObj.getFullYear()}${String(nObj.getMonth() + 1).padStart(2, '0')}${String(nObj.getDate()).padStart(2, '0')}`;
+        const singleUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dStart}/${dEnd}&details=${details}`;
+
+        const a = document.createElement('a');
+        a.href = singleUrl;
+        a.target = '_blank';
+        a.className = 'px-2.5 py-2 rounded-lg bg-slate-950 border border-slate-800 hover:border-indigo-500 text-[11px] font-medium text-slate-200 flex items-center justify-between transition';
+        a.innerHTML = `<span>${item.dowName}, ${String(item.day).padStart(2, '0')}/${String(store.month + 1).padStart(2, '0')}</span><span class="text-indigo-400 font-bold">+</span>`;
+        a.onclick = () => {
+          a.classList.add('border-emerald-500/60', 'text-emerald-300');
+          a.querySelector('span:last-child').textContent = '✓';
+        };
+        container.appendChild(a);
+      });
+
+      document.getElementById('calendarModal').classList.remove('hidden');
     }
 
     function copySummaryText() {
@@ -1106,33 +1233,21 @@
       setTimeout(() => btn.textContent = old, 2000);
     }
 
-    function openGoogleCalendarTemplate() {
-      const list = getSelectedDatesFormatted();
-      if (list.length === 0) {
-        alert('Marque pelo menos um dia presencial no calendário primeiro.');
-        return;
-      }
-      const first = list.find(i => i.status === 'office') || list[0];
-      const dt = first.key.replace(/-/g, '');
-      const title = encodeURIComponent(`🏢 Trabalho Presencial (${store.city})`);
-      const details = encodeURIComponent(`Escala presencial do mês: ${list.map(i => i.label).join(', ')}`);
-      window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dt}/${dt}&details=${details}`, '_blank');
-    }
-
     function downloadIcsFile() {
       const list = getSelectedDatesFormatted();
-      if (list.length === 0) {
-        alert('Marque pelo menos um dia presencial para exportar.');
-        return;
-      }
-      let ics = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Planejador Presencial//PT-BR\r\n";
+      if (list.length === 0) return;
+
+      let ics = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//PIP Planejador Inteligente Presencial//PT-BR\r\n";
       list.forEach(item => {
-        const dt = item.key.replace(/-/g, '');
+        const dtStart = item.key.replace(/-/g, '');
+        const nextObj = new Date(store.year, store.month, item.day + 1);
+        const dtEnd = `${nextObj.getFullYear()}${String(nextObj.getMonth() + 1).padStart(2, '0')}${String(nextObj.getDate()).padStart(2, '0')}`;
         ics += "BEGIN:VEVENT\r\n";
-        ics += `UID:${dt}-presencial@planejador\r\n`;
-        ics += `DTSTART;VALUE=DATE:${dt}\r\n`;
-        ics += `DTEND;VALUE=DATE:${dt}\r\n`;
+        ics += `UID:${dtStart}-pip@planejador\r\n`;
+        ics += `DTSTART;VALUE=DATE:${dtStart}\r\n`;
+        ics += `DTEND;VALUE=DATE:${dtEnd}\r\n`;
         ics += `SUMMARY:🏢 Trabalho Presencial (${store.city})\r\n`;
+        ics += `DESCRIPTION:Dia presencial planejado via PIP.\r\n`;
         ics += "END:VEVENT\r\n";
       });
       ics += "END:VCALENDAR";
@@ -1140,7 +1255,7 @@
       const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `presencial-${store.year}-${String(store.month + 1).padStart(2, '0')}.ics`;
+      link.download = `PIP-presencial-${store.year}-${String(store.month + 1).padStart(2, '0')}.ics`;
       link.click();
     }
 
