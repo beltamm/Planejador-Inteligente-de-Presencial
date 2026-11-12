@@ -19,7 +19,7 @@
     <!-- Header -->
     <header class="text-center space-y-2 border-b border-slate-800 pb-4">
       <h1 class="text-2xl font-bold text-white tracking-tight">Planejador Inteligente de Presencial</h1>
-      <p class="text-slate-400 text-xs">Organize sua escala de trabalho híbrido em etapas rápidas.</p>
+      <p class="text-slate-400 text-xs">Organize sua escala de trabalho híbrido com feriados oficiais e sugestão inteligente.</p>
       
       <!-- Indicadores -->
       <div class="flex items-center justify-center gap-2 pt-2">
@@ -32,8 +32,13 @@
     </header>
 
     <!-- Wizard Card -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative">
       
+      <!-- Banner de Piada / Humor para Sáb/Dom -->
+      <div id="humorBanner" class="hidden absolute -top-12 left-0 right-0 bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs px-4 py-2 rounded-xl text-center transition-all duration-300">
+        ⚠️ <span id="humorText"></span>
+      </div>
+
       <!-- ETAPA 1 -->
       <div id="pane1" class="step-pane active space-y-5">
         <h2 class="text-base font-bold text-white">Passo 1: Localidade e Meta</h2>
@@ -46,11 +51,14 @@
               <option value="SP">São Paulo (SP)</option>
               <option value="RJ">Rio de Janeiro (RJ)</option>
               <option value="MG">Minas Gerais (MG)</option>
+              <option value="BA">Bahia (BA)</option>
             </select>
           </div>
           <div>
             <label class="text-xs text-slate-400 block mb-1">Município</label>
-            <input type="text" id="inputCity" value="Recife" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+            <select id="inputCity" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="Recife" selected>Recife</option>
+            </select>
           </div>
         </div>
 
@@ -63,19 +71,25 @@
         </div>
 
         <div id="boxPct" class="space-y-2">
-          <div class="flex justify-between text-xs">
-            <span class="text-slate-300">Meta Desejada:</span>
-            <span id="lblPctVal" class="font-bold text-indigo-400">40%</span>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-300">Meta Desejada (%):</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="numPct" min="10" max="100" step="5" value="40" class="w-16 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-center font-bold text-indigo-400 text-xs focus:outline-none focus:border-indigo-500">
+              <span class="text-indigo-400 font-bold">%</span>
+            </div>
           </div>
           <input type="range" id="rangePct" min="10" max="100" step="5" value="40" class="w-full accent-indigo-500 cursor-pointer">
         </div>
 
         <div id="boxWk" class="space-y-2 hidden">
-          <div class="flex justify-between text-xs">
-            <span class="text-slate-300">Frequência Semanal:</span>
-            <span id="lblWkVal" class="font-bold text-indigo-400">2 dias/sem</span>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-300">Frequência Semanal (dias):</span>
+            <div class="flex items-center gap-1">
+              <input type="number" id="numWk" min="1" max="7" step="1" value="2" class="w-16 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-center font-bold text-indigo-400 text-xs focus:outline-none focus:border-indigo-500">
+              <span class="text-indigo-400 font-bold">dias</span>
+            </div>
           </div>
-          <input type="range" id="rangeWk" min="1" max="5" step="1" value="2" class="w-full accent-indigo-500 cursor-pointer">
+          <input type="range" id="rangeWk" min="1" max="7" step="1" value="2" class="w-full accent-indigo-500 cursor-pointer">
         </div>
 
         <div class="flex justify-end pt-3 border-t border-slate-800">
@@ -88,223 +102,4 @@
       <!-- ETAPA 2 -->
       <div id="pane2" class="step-pane space-y-5">
         <h2 class="text-base font-bold text-white">Passo 2: Dias Preferidos</h2>
-        <p class="text-xs text-slate-400">Escolha os dias em que você prefere ir ao escritório (usado para sugestão automática).</p>
-
-        <div class="grid grid-cols-5 gap-2" id="favContainer">
-          <button type="button" data-dow="1" class="fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-400 transition">Seg</button>
-          <button type="button" data-dow="2" class="fav-btn py-3 rounded-xl bg-indigo-600/30 border border-indigo-500 text-xs font-semibold text-indigo-200 transition">Ter</button>
-          <button type="button" data-dow="3" class="fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-400 transition">Qua</button>
-          <button type="button" data-dow="4" class="fav-btn py-3 rounded-xl bg-indigo-600/30 border border-indigo-500 text-xs font-semibold text-indigo-200 transition">Quo</button>
-          <button type="button" data-dow="5" class="fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-400 transition">Sex</button>
-        </div>
-
-        <div class="flex justify-between pt-3 border-t border-slate-800">
-          <button type="button" id="toStep1" class="px-4 py-2 rounded-xl border border-slate-700 text-xs text-slate-300 hover:bg-slate-800 transition">← Voltar</button>
-          <button type="button" id="toStep3" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition">Ver Calendário →</button>
-        </div>
-      </div>
-
-      <!-- ETAPA 3 -->
-      <div id="pane3" class="step-pane space-y-4">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div>
-            <h2 id="lblMonthYear" class="text-sm font-bold text-white capitalize">Mês</h2>
-          </div>
-          <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
-            <button type="button" id="btnPrev" class="px-2 py-1 text-xs text-slate-300 hover:bg-slate-800 rounded">←</button>
-            <button type="button" id="btnNext" class="px-2 py-1 text-xs text-slate-300 hover:bg-slate-800 rounded">→</button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-slate-500 uppercase">
-          <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
-        </div>
-        <div id="calGrid" class="grid grid-cols-7 gap-1.5"></div>
-
-        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800">
-          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-center">
-            <span class="text-[10px] text-slate-400 block">Meta Necessária</span>
-            <span id="resTarget" class="text-base font-bold text-indigo-400">0</span>
-          </div>
-          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-center">
-            <span class="text-[10px] text-slate-400 block">Total Computado</span>
-            <span id="resTotal" class="text-base font-bold text-emerald-400">0</span>
-          </div>
-        </div>
-
-        <div class="flex justify-between pt-2">
-          <button type="button" id="toStep2Back" class="px-4 py-2 rounded-xl border border-slate-700 text-xs text-slate-300 hover:bg-slate-800 transition">← Voltar</button>
-          <button type="button" id="btnCopy" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition">Copiar Resumo</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <script>
-    // Estado global da aplicação
-    const store = {
-      step: 1,
-      year: new Date().getFullYear(),
-      month: new Date().getMonth(),
-      mode: 'pct', // 'pct' ou 'wk'
-      valPct: 40,
-      valWk: 2,
-      favs: [2, 4],
-      days: {} // 'YYYY-MM-DD': 'done'|'office'|'holiday'
-    };
-
-    const HOLIDAYS = {
-      '01-01': 'Confraternização', '03-06': 'Data Magna', '04-21': 'Tiradentes',
-      '05-01': 'Dia do Trabalho', '06-24': 'São João', '09-07': 'Independência',
-      '10-12': 'Padroeira', '11-02': 'Finados', '11-15': 'República', '12-25': 'Natal'
-    };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      // 1. Navegação do Wizard
-      document.getElementById('toStep2').onclick = () => switchStep(2);
-      document.getElementById('toStep1').onclick = () => switchStep(1);
-      document.getElementById('toStep3').onclick = () => switchStep(3);
-      document.getElementById('toStep2Back').onclick = () => switchStep(2);
-
-      // 2. Alternar Modo de Meta
-      const btnPct = document.getElementById('btnModePct');
-      const btnWk = document.getElementById('btnModeWk');
-      const boxPct = document.getElementById('boxPct');
-      const boxWk = document.getElementById('boxWk');
-
-      btnPct.onclick = () => {
-        store.mode = 'pct';
-        btnPct.className = "py-2 rounded-lg text-xs font-semibold bg-indigo-600 text-white transition";
-        btnWk.className = "py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
-        boxPct.classList.remove('hidden');
-        boxWk.classList.add('hidden');
-      };
-
-      btnWk.onclick = () => {
-        store.mode = 'wk';
-        btnWk.className = "py-2 rounded-lg text-xs font-semibold bg-indigo-600 text-white transition";
-        btnPct.className = "py-2 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition";
-        boxWk.classList.remove('hidden');
-        boxPct.classList.add('hidden');
-      };
-
-      // 3. Sliders
-      const rangePct = document.getElementById('rangePct');
-      rangePct.oninput = (e) => {
-        store.valPct = Number(e.target.value);
-        document.getElementById('lblPctVal').textContent = `${store.valPct}%`;
-      };
-
-      const rangeWk = document.getElementById('rangeWk');
-      rangeWk.oninput = (e) => {
-        store.valWk = Number(e.target.value);
-        document.getElementById('lblWkVal').textContent = `${store.valWk} dias/sem`;
-      };
-
-      // 4. Dias Favoritos
-      document.querySelectorAll('.fav-btn').forEach(btn => {
-        const dow = Number(btn.dataset.dow);
-        btn.onclick = () => {
-          const idx = store.favs.indexOf(dow);
-          if (idx > -1) {
-            store.favs.splice(idx, 1);
-            btn.className = "fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-400 transition";
-          } else {
-            store.favs.push(dow);
-            btn.className = "fav-btn py-3 rounded-xl bg-indigo-600/30 border border-indigo-500 text-xs font-semibold text-indigo-200 transition";
-          }
-        };
-      });
-
-      // 5. Mês anterior / próximo
-      document.getElementById('btnPrev').onclick = () => {
-        store.month--;
-        if (store.month < 0) { store.month = 11; store.year--; }
-        renderCal();
-      };
-      document.getElementById('btnNext').onclick = () => {
-        store.month++;
-        if (store.month > 11) { store.month = 0; store.year++; }
-        renderCal();
-      };
-
-      // 6. Botão Copiar
-      document.getElementById('btnCopy').onclick = () => {
-        navigator.clipboard.writeText("Escala de presencial calculada com sucesso!");
-        alert("Copiado para a área de transferência!");
-      };
-    });
-
-    function switchStep(target) {
-      store.step = target;
-      for (let i = 1; i <= 3; i++) {
-        document.getElementById(`pane${i}`).classList.toggle('active', i === target);
-        const ind = document.getElementById(`ind${i}`);
-        if (i === target) {
-          ind.className = "px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white";
-        } else if (i < target) {
-          ind.className = "px-3 py-1 rounded-full text-xs font-semibold bg-emerald-600/20 text-emerald-300 border border-emerald-500/30";
-        } else {
-          ind.className = "px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-500 border border-slate-800";
-        }
-      }
-      if (target === 3) renderCal();
-    }
-
-    function renderCal() {
-      const { year, month } = store;
-      const monthName = new Date(year, month, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-      document.getElementById('lblMonthYear').textContent = monthName;
-
-      const grid = document.getElementById('calGrid');
-      grid.innerHTML = '';
-
-      const firstDay = new Date(year, month, 1).getDay();
-      const totalDays = new Date(year, month + 1, 0).getDate();
-
-      for (let i = 0; i < firstDay; i++) {
-        grid.appendChild(document.createElement('div'));
-      }
-
-      let weekdays = 0;
-      let presence = 0;
-
-      for (let d = 1; d <= totalDays; d++) {
-        const date = new Date(year, month, d);
-        const dow = date.getDay();
-        const isWeekend = dow === 0 || dow === 6;
-        const key = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const mmdd = key.slice(5);
-        
-        let status = store.days[key] || 'work';
-        if (!isWeekend && HOLIDAYS[mmdd]) status = 'holiday';
-
-        if (!isWeekend && status !== 'holiday') weekdays++;
-        if (status === 'done' || status === 'office') presence++;
-
-        const cell = document.createElement('div');
-        cell.className = `h-14 p-1.5 rounded-xl border flex flex-col justify-between text-xs cursor-pointer ${
-          isWeekend ? 'bg-slate-950/30 border-slate-800/20 text-slate-700' :
-          status === 'done' ? 'bg-blue-950/60 border-blue-500 text-blue-200' :
-          status === 'holiday' ? 'bg-rose-950/40 border-rose-500/40 text-rose-300' :
-          'bg-slate-950 border-slate-800 text-slate-300'
-        }`;
-        cell.innerHTML = `<span class="font-bold">${d}</span><span class="text-[9px]">${status === 'holiday' ? 'Feriado' : status === 'done' ? '✓' : ''}</span>`;
-
-        if (!isWeekend) {
-          cell.onclick = () => {
-            store.days[key] = store.days[key] === 'done' ? 'work' : 'done';
-            renderCal();
-          };
-        }
-        grid.appendChild(cell);
-      }
-
-      const req = Math.ceil(weekdays * (store.mode === 'pct' ? store.valPct/100 : store.valWk/5));
-      document.getElementById('resTarget').textContent = req;
-      document.getElementById('resTotal').textContent = presence;
-    }
-  </script>
-</body>
-</html>
+        <p class="text-xs text-
