@@ -1,10 +1,10 @@
 /**
  * PIP • Planejador Inteligente Presencial
- * Motor de Cálculo de Dias Úteis, Feriados (Nacionais/Móveis/Estaduais/Municipais) e Exportação
+ * Motor de Cálculo de Dias Úteis, Feriados Oficiais, Distribuição Inteligente e Exportação
  */
 
 // ============================================================================
-// 1. BASE DE ESTADOS, MUNICÍPIOS E FERIADOS
+// 1. BASE DE ESTADOS, MUNICÍPIOS E FERIADOS OFICIAIS
 // ============================================================================
 const STATES = [
   { uf: 'AC', name: 'Acre', cities: ['Rio Branco', 'Cruzeiro do Sul', 'Sena Madureira', 'Tarauacá'] },
@@ -150,7 +150,7 @@ const MUNICIPAL_HOLIDAYS = {
   'RR:Boa Vista': { '06-29': 'São Pedro', '07-09': 'Aniversário de Boa Vista' },
   'AP:Macapá': { '02-04': 'Aniversário de Macapá', '03-19': 'São José' },
   'TO:Palmas': { '03-19': 'São José', '05-20': 'Aniversário de Palmas' }
-];
+};
 
 function getMovableHolidays(year) {
   const a = year % 19;
@@ -195,7 +195,7 @@ function getAllHolidaysMap(year, uf, city) {
 // ============================================================================
 // 2. ESTADO GLOBAL E INICIALIZAÇÃO
 // ============================================================================
-const STORAGE_KEY = 'pip_planejador_pro_v4';
+const STORAGE_KEY = 'pip_planejador_pro_v5';
 const ibgeCache = {};
 
 const store = {
@@ -227,44 +227,46 @@ document.addEventListener('DOMContentLoaded', () => {
   syncStep1Inputs();
   renderFavButtons();
   setBrush('office');
-  updateHolidaysPreview();
+  updateStep1Previews();
 
   fetchIbgeCitiesInBackground(store.uf, store.city);
 
   document.getElementById('selectMonth').onchange = (e) => {
     store.month = Number(e.target.value);
-    updateHolidaysPreview();
+    updateStep1Previews();
     saveState();
   };
 
   document.getElementById('selectYear').onchange = (e) => {
     store.year = Number(e.target.value);
-    updateHolidaysPreview();
+    updateStep1Previews();
     saveState();
   };
 
   document.getElementById('selectUf').onchange = (e) => {
     store.uf = e.target.value;
     populateCitiesSync(store.uf);
-    updateHolidaysPreview();
+    updateStep1Previews();
     saveState();
     fetchIbgeCitiesInBackground(store.uf, store.city);
   };
 
   document.getElementById('selectCity').onchange = (e) => {
     store.city = e.target.value;
-    updateHolidaysPreview();
+    updateStep1Previews();
     saveState();
   };
 
   document.getElementById('btnModePct').onclick = () => {
     store.mode = 'pct';
     syncStep1Inputs();
+    updateStep1Previews();
     saveState();
   };
   document.getElementById('btnModeWk').onclick = () => {
     store.mode = 'wk';
     syncStep1Inputs();
+    updateStep1Previews();
     saveState();
   };
 
@@ -273,12 +275,14 @@ document.addEventListener('DOMContentLoaded', () => {
   rangePct.oninput = (e) => {
     store.valPct = Number(e.target.value);
     numPct.value = store.valPct;
+    updateStep1Previews();
     saveState();
   };
   numPct.oninput = (e) => {
     let val = Math.min(100, Math.max(1, Number(e.target.value) || 1));
     store.valPct = val;
     rangePct.value = val;
+    updateStep1Previews();
     saveState();
   };
 
@@ -287,17 +291,32 @@ document.addEventListener('DOMContentLoaded', () => {
   rangeWk.oninput = (e) => {
     store.valWk = Number(e.target.value);
     numWk.value = store.valWk;
+    updateStep1Previews();
     saveState();
   };
   numWk.oninput = (e) => {
     let val = Math.min(7, Math.max(1, Number(e.target.value) || 1));
     store.valWk = val;
     rangeWk.value = val;
+    updateStep1Previews();
     saveState();
   };
 
-  document.getElementById('inputAlreadyWent').oninput = (e) => {
+  const inputWent = document.getElementById('inputAlreadyWent');
+  inputWent.oninput = (e) => {
     store.alreadyWent = Math.max(0, Math.min(31, Number(e.target.value) || 0));
+    updateStep2Preview();
+    saveState();
+  };
+  document.getElementById('btnDecWent').onclick = () => {
+    store.alreadyWent = Math.max(0, store.alreadyWent - 1);
+    inputWent.value = store.alreadyWent;
+    updateStep2Preview();
+    saveState();
+  };
+  document.getElementById('btnIncWent').onclick = () => {
+    store.alreadyWent = Math.min(31, store.alreadyWent + 1);
+    inputWent.value = store.alreadyWent;
     updateStep2Preview();
     saveState();
   };
@@ -310,7 +329,9 @@ document.addEventListener('DOMContentLoaded', () => {
         store.favs.splice(idx, 1);
       } else {
         store.favs.push(dow);
-        if (dow === 0 || dow === 6) triggerHumorToast();
+        if (dow === 0 || dow === 6) {
+          showToast(WEEKEND_JOKES[Math.floor(Math.random() * WEEKEND_JOKES.length)], '🚨', true);
+        }
       }
       renderFavButtons();
       saveState();
@@ -349,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
     store.month--;
     if (store.month < 0) { store.month = 11; store.year--; }
     syncStep1Inputs();
-    updateHolidaysPreview();
+    updateStep1Previews();
     applySmartSuggestion();
     renderCalendar();
   };
@@ -358,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
     store.month++;
     if (store.month > 11) { store.month = 0; store.year++; }
     syncStep1Inputs();
-    updateHolidaysPreview();
+    updateStep1Previews();
     applySmartSuggestion();
     renderCalendar();
   };
@@ -366,11 +387,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btnAutoFill').onclick = () => {
     applySmartSuggestion(true);
     renderCalendar();
+    showToast('Escala recalculada com base nos seus dias preferidos!', '✨');
   };
 
   document.getElementById('btnClearMonth').onclick = () => {
     clearCurrentMonth();
     renderCalendar();
+    showToast('Marcações do mês limpas.', '🧹');
   };
 
   document.getElementById('btnCopyText').onclick = copySummaryText;
@@ -430,7 +453,7 @@ function syncStep1Inputs() {
   document.getElementById('inputAlreadyWent').value = store.alreadyWent;
 }
 
-function updateHolidaysPreview() {
+function updateStep1Previews() {
   const holidaysMap = getAllHolidaysMap(store.year, store.uf, store.city);
   const daysInMonth = new Date(store.year, store.month + 1, 0).getDate();
   const found = [];
@@ -440,12 +463,16 @@ function updateHolidaysPreview() {
     if (holidaysMap[mmdd]) {
       const dow = new Date(store.year, store.month, d).getDay();
       const isWknd = dow === 0 || dow === 6;
-      found.push(`${String(d).padStart(2, '0')}/${String(store.month + 1).padStart(2, '0')} (${holidaysMap[mmdd]}${isWknd ? ' - Fim de semana' : ''})`);
+      found.push(`${String(d).padStart(2, '0')}/${String(store.month + 1).padStart(2, '0')} (${holidaysMap[mmdd]}${isWknd ? ' - Fim de sem.' : ''})`);
     }
   }
 
-  const el = document.getElementById('detectedHolidaysPreview');
-  el.textContent = found.length > 0 ? found.join(' • ') : 'Nenhum feriado oficial neste mês.';
+  document.getElementById('detectedHolidaysPreview').textContent =
+    found.length > 0 ? found.join(' • ') : 'Nenhum feriado oficial neste mês.';
+
+  const stats = calculateMonthMetrics();
+  document.getElementById('step1WorkdaysBadge').textContent = `${stats.availableWorkdays} dias úteis no mês`;
+  document.getElementById('step1TargetPreview').textContent = `${stats.requiredDays} dias presenciais (${stats.targetShareOfMonthPct}% de ${stats.availableWorkdays}d úteis)`;
 }
 
 function renderFavButtons() {
@@ -460,13 +487,17 @@ function renderFavButtons() {
   });
 }
 
-function triggerHumorToast() {
-  const toast = document.getElementById('humorToast');
-  const txt = document.getElementById('humorText');
-  txt.textContent = WEEKEND_JOKES[Math.floor(Math.random() * WEEKEND_JOKES.length)];
-  toast.classList.remove('hidden');
-  clearTimeout(window._humorTimer);
-  window._humorTimer = setTimeout(() => toast.classList.add('hidden'), 4500);
+function showToast(message, icon = '✨', isWarning = false) {
+  const wrapper = document.getElementById('globalToast');
+  const box = document.getElementById('globalToastBox');
+  document.getElementById('globalToastIcon').textContent = icon;
+  document.getElementById('globalToastText').textContent = message;
+
+  box.classList.toggle('toast-warn', isWarning);
+  wrapper.classList.remove('hidden');
+
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => wrapper.classList.add('hidden'), 4000);
 }
 
 function goToStep(stepNum) {
@@ -485,6 +516,7 @@ function goToStep(stepNum) {
     }
   });
 
+  if (stepNum === 1) updateStep1Previews();
   if (stepNum === 2) updateStep2Preview();
   if (stepNum === 3) renderCalendar();
 }
@@ -492,14 +524,16 @@ function goToStep(stepNum) {
 function updateStep2Preview() {
   const stats = calculateMonthMetrics();
   const remaining = Math.max(0, stats.requiredDays - store.alreadyWent);
-  document.getElementById('previewCalcBadge').textContent = `Meta: ${stats.requiredDays} dias no mês`;
+  document.getElementById('previewCalcBadge').textContent = `Meta: ${stats.requiredDays} dias`;
   document.getElementById('previewCalcDesc').textContent =
-    `O mês tem ${stats.availableWorkdays} dias úteis (descontando ${stats.deductedDays} feriado(s) em dia de semana). ` +
-    (store.alreadyWent > 0 ? `Como você já foi ${store.alreadyWent}d, faltam ${remaining} dia(s) para planejar.` : `Vamos sugerir ${stats.requiredDays} dias presenciais.`);
+    `De ${stats.totalWeekdays} dias de semana, descontamos ${stats.deductedDays} feriado(s), restando ${stats.availableWorkdays} dias úteis. ` +
+    (store.alreadyWent > 0
+      ? `Com ${store.alreadyWent} dia(s) já realizado(s), vamos sugerir os ${remaining} dia(s) restantes.`
+      : `Vamos distribuir automaticamente os ${stats.requiredDays} dias presenciais no calendário.`);
 }
 
 // ============================================================================
-// 4. MOTOR DE SUGESTÃO INTELIGENTE E CÁLCULO DE MÉTRICAS
+// 4. MOTOR DE SUGESTÃO INTELIGENTE (DISTRIBUIÇÃO POR SEMANA) & MÉTRICAS
 // ============================================================================
 function formatDateKey(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -536,7 +570,7 @@ function applySmartSuggestion(forceReset = false) {
     if (currentStatus === 'vacation' || currentStatus === 'holiday') continue;
 
     if (!isWeekend || favs.includes(dow)) {
-      availableCandidates.push({ d, dow, key });
+      availableCandidates.push({ d, dow, key, weekIdx: Math.floor((d - 1) / 7) });
     }
   }
 
@@ -611,7 +645,14 @@ function calculateMonthMetrics() {
   const effectivePct = mode === 'pct' ? (valPct / 100) : Math.min(1, valWk / 5);
   const requiredDays = Math.ceil(availableWorkdays * effectivePct);
   const totalPresence = doneCount + officeCount;
-  const achievedPct = availableWorkdays > 0 ? Math.round((totalPresence / availableWorkdays) * 100) : 0;
+
+  // 1. Cumprimento da Meta (8 de 8 dias exigidos = 100%)
+  const goalProgressPct = requiredDays > 0 ? Math.round((totalPresence / requiredDays) * 100) : 100;
+
+  // 2. Proporção real sobre os dias úteis do mês
+  const monthSharePct = availableWorkdays > 0 ? Math.round((totalPresence / availableWorkdays) * 100) : 0;
+  const targetShareOfMonthPct = Math.round(effectivePct * 100);
+
   const missingDays = Math.max(0, requiredDays - totalPresence);
   const extraBank = Math.max(0, totalPresence - requiredDays);
 
@@ -623,14 +664,16 @@ function calculateMonthMetrics() {
     doneCount,
     officeCount,
     totalPresence,
-    achievedPct,
+    goalProgressPct,
+    monthSharePct,
+    targetShareOfMonthPct,
     missingDays,
     extraBank
   };
 }
 
 // ============================================================================
-// 5. RENDERIZAÇÃO DO CALENDÁRIO & MODAL MULTI-EVENTOS GOOGLE AGENDA
+// 5. RENDERIZAÇÃO DO CALENDÁRIO & CENTRAL DE AGENDAS
 // ============================================================================
 function setBrush(brush) {
   store.activeBrush = brush;
@@ -639,10 +682,10 @@ function setBrush(brush) {
     const isSel = b === brush;
     let style = 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700';
     if (isSel) {
-      if (b === 'office') style = 'border-emerald-500 bg-emerald-500/20 text-emerald-200';
-      if (b === 'done') style = 'border-blue-500 bg-blue-500/20 text-blue-200';
-      if (b === 'vacation') style = 'border-amber-500 bg-amber-500/20 text-amber-200';
-      if (b === 'holiday') style = 'border-rose-500 bg-rose-500/20 text-rose-200';
+      if (b === 'office') style = 'border-emerald-500 bg-emerald-500/20 text-emerald-200 shadow-sm';
+      if (b === 'done') style = 'border-blue-500 bg-blue-500/20 text-blue-200 shadow-sm';
+      if (b === 'vacation') style = 'border-amber-500 bg-amber-500/20 text-amber-200 shadow-sm';
+      if (b === 'holiday') style = 'border-rose-500 bg-rose-500/20 text-rose-200 shadow-sm';
     }
     btn.className = `brush-btn px-2.5 py-1 rounded-lg border text-xs font-medium transition ${style}`;
   });
@@ -662,6 +705,9 @@ function renderCalendar() {
   const firstDayDow = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
+  const todayObj = new Date();
+  const todayKey = formatDateKey(todayObj.getFullYear(), todayObj.getMonth(), todayObj.getDate());
+
   for (let i = 0; i < firstDayDow; i++) {
     const empty = document.createElement('div');
     empty.className = 'h-16 sm:h-20 rounded-xl bg-slate-950/30 border border-slate-800/30';
@@ -673,6 +719,7 @@ function renderCalendar() {
     const mmdd = key.slice(5);
     const dow = new Date(year, month, d).getDay();
     const isWeekend = dow === 0 || dow === 6;
+    const isToday = key === todayKey;
     const holidayName = holidaysMap[mmdd];
 
     let status = store.days[key];
@@ -696,15 +743,17 @@ function renderCalendar() {
       badge = '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 w-fit">✈️ Férias</span>';
     } else if (status === 'holiday') {
       style = 'bg-rose-950/50 border-rose-500/60 text-rose-200 cursor-pointer';
-      const hTitle = holidayName || 'Feriado Local';
+      const hTitle = holidayName || 'Feriado Extra';
       badge = `<span class="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 truncate max-w-full" title="${hTitle}">🎉 ${hTitle}</span>`;
     } else if (isWeekend) {
       style = 'bg-slate-950/40 border-slate-800/40 text-slate-600 cursor-pointer';
-      badge = `<span class="text-[9px] text-slate-600">${holidayName ? '🎉 ' + holidayName : 'Fim de sem.'}</span>`;
+      badge = `<span class="text-[9px] text-slate-600 truncate max-w-full">${holidayName ? '🎉 ' + holidayName : 'Fim de sem.'}</span>`;
     }
 
+    const todayBadge = isToday ? `<span class="text-[8px] uppercase font-bold px-1.5 py-0.5 rounded bg-indigo-500 text-white">Hoje</span>` : '';
+
     cell.className = `day-cell h-16 sm:h-20 p-2 rounded-xl border flex flex-col justify-between ${style}`;
-    cell.innerHTML = `<div class="flex justify-between items-center"><span class="text-xs font-bold">${d}</span></div>${badge}`;
+    cell.innerHTML = `<div class="flex justify-between items-center"><span class="text-xs font-bold">${d}</span>${todayBadge}</div>${badge}`;
 
     cell.onclick = () => {
       if (store.days[key] === store.activeBrush) {
@@ -713,7 +762,7 @@ function renderCalendar() {
         store.days[key] = store.activeBrush;
       }
       if ((dow === 0 || dow === 6) && (store.days[key] === 'office' || store.days[key] === 'done')) {
-        triggerHumorToast();
+        showToast(WEEKEND_JOKES[Math.floor(Math.random() * WEEKEND_JOKES.length)], '🚨', true);
       }
       saveState();
       renderCalendar();
@@ -722,31 +771,44 @@ function renderCalendar() {
     grid.appendChild(cell);
   }
 
+  // Atualiza Painel de Métricas com UX Clarificada
   const m = calculateMonthMetrics();
   document.getElementById('statWorkdays').textContent = m.availableWorkdays;
   document.getElementById('statDeducted').textContent = `${m.deductedDays} descontado(s)`;
-  document.getElementById('statTarget').textContent = m.requiredDays;
-  document.getElementById('statTargetPct').textContent = store.mode === 'pct' ? `Meta: ${store.valPct}%` : `Meta: ${store.valWk}x/sem`;
-  document.getElementById('statTotal').textContent = m.totalPresence;
-  document.getElementById('statBreakdown').textContent = `${m.doneCount} feito(s) / ${m.officeCount} plan.`;
-  document.getElementById('statPct').textContent = `${m.achievedPct}%`;
-  document.getElementById('statMissing').textContent = m.missingDays === 0 ? 'Meta batida!' : `Faltam ${m.missingDays}d`;
+  document.getElementById('statTarget').textContent = `${m.requiredDays}d`;
+  document.getElementById('statTargetPct').textContent = store.mode === 'pct' ? `Regra: ${store.valPct}%` : `Regra: ${store.valWk}x/sem`;
+  document.getElementById('statTotal').textContent = `${m.totalPresence}d`;
+  document.getElementById('statBreakdown').textContent = `${m.doneCount} feito(s) • ${m.officeCount} plan.`;
+
+  // Cumprimento da Meta (100% = Meta Atingida!)
+  const statPctEl = document.getElementById('statPct');
+  statPctEl.textContent = `${m.goalProgressPct}%`;
+  statPctEl.className = `text-xs font-extrabold ${m.goalProgressPct >= 100 ? 'text-emerald-400' : 'text-amber-300'}`;
+
+  const progBar = document.getElementById('statProgressBar');
+  progBar.style.width = `${Math.min(100, m.goalProgressPct)}%`;
+  progBar.className = `h-full transition-all duration-300 ${m.goalProgressPct >= 100 ? 'bg-emerald-500' : 'bg-indigo-500'}`;
+
+  document.getElementById('statMissing').textContent = m.missingDays === 0
+    ? `Meta batida! (${m.monthSharePct}% do mês útil)`
+    : `Faltam ${m.missingDays}d (${m.monthSharePct}% do mês útil)`;
+
   document.getElementById('statBank').textContent = `+${m.extraBank}d`;
-  document.getElementById('statBankSub').textContent = m.extraBank > 0 ? 'Dias acumulados' : 'Sem excedente';
+  document.getElementById('statBankSub').textContent = m.extraBank > 0 ? 'Dias excedentes' : 'Sem excedente';
 
   const statusBadge = document.getElementById('lblStatusBadge');
   if (m.totalPresence >= m.requiredDays && m.requiredDays > 0) {
-    statusBadge.textContent = m.extraBank > 0 ? `Meta Superada (+${m.extraBank}d no banco)` : 'Meta Atingida!';
+    statusBadge.textContent = m.extraBank > 0 ? `Meta Superada (+${m.extraBank}d no banco)` : '100% da Meta Atingida!';
     statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
   } else {
-    statusBadge.textContent = `Faltam ${m.missingDays} dia(s)`;
+    statusBadge.textContent = `Faltam ${m.missingDays} dia(s) para a meta`;
     statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40';
   }
 
   const listDates = getSelectedDatesFormatted();
-  document.getElementById('lblCountCalBtn').textContent = `${listDates.length} dias`;
+  document.getElementById('lblCountCalBtn').textContent = `${listDates.length}d`;
   document.getElementById('txtSummaryPreview').textContent = listDates.length > 0
-    ? `📅 Presenciais (${listDates.length}d): ${listDates.map(i => i.label).join(', ')}`
+    ? `📅 Presenciais (${listDates.length}/${m.requiredDays}d): ${listDates.map(i => i.label).join(', ')}`
     : 'Nenhum dia presencial marcado neste mês.';
 }
 
@@ -782,7 +844,7 @@ function getSelectedDatesFormatted() {
 function openCalendarModal() {
   const list = getSelectedDatesFormatted();
   if (list.length === 0) {
-    alert('Marque pelo menos um dia presencial no calendário primeiro!');
+    showToast('Marque pelo menos um dia presencial no calendário primeiro!', '⚠️', true);
     return;
   }
 
@@ -840,14 +902,11 @@ function copySummaryText() {
   const m = calculateMonthMetrics();
   const monthName = new Date(store.year, store.month, 1).toLocaleDateString('pt-BR', { month: 'long' });
   const text = list.length > 0
-    ? `📅 Minha escala presencial em ${monthName} (${store.city}-${store.uf}) — ${list.length}/${m.requiredDays} dias (${m.achievedPct}%): ${list.map(i => i.label).join(', ')}`
+    ? `📅 Minha escala presencial em ${monthName} (${store.city}-${store.uf}) — ${list.length}/${m.requiredDays} dias (${m.goalProgressPct}% da meta): ${list.map(i => i.label).join(', ')}`
     : `Nenhum dia presencial planejado para ${monthName}.`;
 
   navigator.clipboard.writeText(text);
-  const btn = document.getElementById('btnCopyText');
-  const old = btn.textContent;
-  btn.textContent = '✅ Texto Copiado!';
-  setTimeout(() => btn.textContent = old, 2000);
+  showToast('Resumo copiado para colar no Slack ou Teams!', '📋');
 }
 
 function copyShareableLink() {
@@ -858,11 +917,7 @@ function copyShareableLink() {
   const hash = btoa(encodeURIComponent(JSON.stringify(payload)));
   const url = `${window.location.origin}${window.location.pathname}#d=${hash}`;
   navigator.clipboard.writeText(url);
-
-  const btn = document.getElementById('btnShareUrl');
-  const old = btn.textContent;
-  btn.textContent = '✅ Link Copiado!';
-  setTimeout(() => btn.textContent = old, 2000);
+  showToast('Link compartilhável copiado para a área de transferência!', '🔗');
 }
 
 function downloadIcsFile() {
@@ -889,6 +944,7 @@ function downloadIcsFile() {
   link.href = URL.createObjectURL(blob);
   link.download = `PIP-presencial-${store.year}-${String(store.month + 1).padStart(2, '0')}.ics`;
   link.click();
+  showToast('Arquivo .ICS baixado com todos os seus dias!', '⬇️');
 }
 
 function saveState() {
