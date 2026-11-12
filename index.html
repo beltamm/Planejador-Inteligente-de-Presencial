@@ -20,42 +20,59 @@
     <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
       <div>
         <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Planejador Inteligente de Presencial</h1>
-        <p class="text-slate-400 text-sm mt-1">Recife (PE) • Feriados locais, dias realizados, saldo positivo, sugestão e Google Agenda.</p>
+        <p class="text-slate-400 text-sm mt-1">Feriados oficiais via API, geolocalização por município, banco de horas e Google Agenda.</p>
       </div>
       
       <!-- Seletor de Mês/Ano -->
       <div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
-        <button id="prevMonth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-300 transition" title="Mês anterior">←</button>
+        <button id="prevMonth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-300 transition" title="Mês anterior">&larr;</button>
         <span id="currentMonthLabel" class="font-semibold text-sm md:text-base px-3 min-w-[150px] text-center capitalize"></span>
-        <button id="nextMonth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-300 transition" title="Próximo mês">→</button>
+        <button id="nextMonth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-300 transition" title="Próximo mês">&rarr;</button>
       </div>
     </header>
 
-    <!-- Painel de Configuração e Métricas -->
+    <!-- Painel de Configuração e Localidade -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       
-      <!-- Controles da Meta e Favoritos (5 colunas) -->
-      <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-5">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">1. Configurar Regra & Meta</h2>
+      <!-- Controles, Local e Metas (5 colunas) -->
+      <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">1. Localidade & Feriados</h2>
+        
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="text-[11px] font-medium text-slate-400 block mb-1">Estado (UF)</label>
+            <select id="stateSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="PE">Pernambuco (PE)</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[11px] font-medium text-slate-400 block mb-1">Município</label>
+            <select id="citySelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="Recife">Recife</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="border-slate-800">
+
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">2. Configurar Meta</h2>
         
         <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
           <button id="modePercentBtn" class="py-2 px-3 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white">Por % do Mês</button>
           <button id="modeWeeklyBtn" class="py-2 px-3 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Dias / Semana</button>
         </div>
 
-        <!-- Input Porcentagem -->
-        <div id="percentControl" class="space-y-2">
-          <div class="flex justify-between text-sm">
-            <label for="targetPercent" class="text-slate-300">Meta de Presencial:</label>
+        <div id="percentControl" class="space-y-1">
+          <div class="flex justify-between text-xs">
+            <label for="targetPercent" class="text-slate-300">Meta:</label>
             <span id="targetPercentVal" class="font-bold text-indigo-400">40%</span>
           </div>
           <input type="range" id="targetPercent" min="10" max="100" step="5" value="40" class="w-full accent-indigo-500 cursor-pointer">
         </div>
 
-        <!-- Input Dias por Semana -->
-        <div id="weeklyControl" class="space-y-2 hidden">
-          <div class="flex justify-between text-sm">
-            <label for="targetWeekly" class="text-slate-300">Dias por Semana:</label>
+        <div id="weeklyControl" class="space-y-1 hidden">
+          <div class="flex justify-between text-xs">
+            <label for="targetWeekly" class="text-slate-300">Dias/Semana:</label>
             <span id="targetWeeklyVal" class="font-bold text-indigo-400">2 dias/sem</span>
           </div>
           <input type="range" id="targetWeekly" min="1" max="5" step="1" value="2" class="w-full accent-indigo-500 cursor-pointer">
@@ -63,11 +80,10 @@
 
         <hr class="border-slate-800">
 
-        <!-- Dias Favoritos (Preferências para a Sugestão da IA) -->
         <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Seus Dias Preferidos</span>
-            <span class="text-[10px] text-slate-500">Usado pela sugestão</span>
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Dias Preferidos</span>
+            <span class="text-[10px] text-slate-500">Para sugestão IA</span>
           </div>
           <div class="grid grid-cols-5 gap-1.5" id="favoriteDaysContainer">
             <button data-fav-dow="1" class="fav-day-btn py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-medium transition text-slate-400">Seg</button>
@@ -76,356 +92,4 @@
             <button data-fav-dow="4" class="fav-day-btn py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-medium transition text-slate-400">Qui</button>
             <button data-fav-dow="5" class="fav-day-btn py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-medium transition text-slate-400">Sex</button>
           </div>
-          <button id="suggestDaysBtn" class="w-full mt-2 py-2 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 text-xs font-semibold transition flex items-center justify-center gap-1.5">
-            ✨ Completar com Sugestão da IA
-          </button>
-        </div>
-
-        <hr class="border-slate-800">
-
-        <!-- Ferramenta de Pincel -->
-        <div class="space-y-2">
-          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Modo de Clique no Calendário</span>
-          <div class="grid grid-cols-2 gap-2">
-            <button data-brush="done" class="brush-btn flex flex-col items-center p-2 rounded-xl border border-blue-500 bg-blue-500/10 text-blue-200 text-xs font-medium transition">
-              <span class="w-2.5 h-2.5 rounded-full bg-blue-500 mb-1"></span>
-              Já Fui (Realizado)
-            </button>
-            <button data-brush="office" class="brush-btn flex flex-col items-center p-2 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 hover:border-emerald-500/40 text-xs font-medium transition">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mb-1"></span>
-              Planejado Futuro
-            </button>
-            <button data-brush="vacation" class="brush-btn flex flex-col items-center p-2 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 hover:border-amber-500/40 text-xs font-medium transition">
-              <span class="w-2.5 h-2.5 rounded-full bg-amber-500 mb-1"></span>
-              Férias/Folga
-            </button>
-            <button data-brush="holiday" class="brush-btn flex flex-col items-center p-2 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 hover:border-rose-500/40 text-xs font-medium transition">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mb-1"></span>
-              Feriado
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Dashboard de Resultados (7 colunas) -->
-      <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-5">
-        <div>
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">Resumo & Banco de Horas</h2>
-            <span id="statusBadge" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
-              Pendente
-            </span>
-          </div>
-
-          <!-- Cards de Números -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl">
-              <span class="text-xs text-slate-400 block">Meta Mínima</span>
-              <span id="statTargetDays" class="text-2xl font-bold text-indigo-400 mt-1 block">0</span>
-              <span class="text-[11px] text-slate-500">dias necessários</span>
-            </div>
-            <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl">
-              <span class="text-xs text-slate-400 block">Total Computado</span>
-              <span id="statPlannedDays" class="text-2xl font-bold text-emerald-400 mt-1 block">0</span>
-              <span id="statMissing" class="text-[11px] text-slate-500">Faltam 0</span>
-            </div>
-            <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl">
-              <span class="text-xs text-slate-400 block">% Atingida</span>
-              <span id="statCurrentPct" class="text-2xl font-bold text-white mt-1 block">0%</span>
-              <span class="text-[11px] text-slate-500">sobre úteis</span>
-            </div>
-            <div class="bg-slate-950 border border-slate-800 p-3.5 rounded-xl border-indigo-500/30 bg-indigo-950/10">
-              <span class="text-xs text-indigo-300 block font-medium">Banco / Saldo</span>
-              <span id="statExtraBank" class="text-2xl font-bold text-indigo-400 mt-1 block">0d</span>
-              <span id="statExtraSub" class="text-[11px] text-indigo-300/70">dias excedentes</span>
-            </div>
-          </div>
-
-          <!-- Barra de Progresso -->
-          <div class="mt-5 space-y-1.5">
-            <div class="flex justify-between text-xs text-slate-400">
-              <span>Progresso da Meta</span>
-              <span id="progressText">0 de 0 dias</span>
-            </div>
-            <div class="w-full h-3 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
-              <div id="progressBar" class="h-full bg-indigo-500 transition-all duration-300" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Ações de Exportação e Compartilhamento -->
-        <div class="pt-4 border-t border-slate-800 space-y-3">
-          <div class="text-xs text-slate-300 bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2">
-            <span id="selectedDatesPreview" class="truncate">Nenhum dia selecionado.</span>
-            <button id="copySummaryBtn" class="shrink-0 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition">
-              Copiar Texto
-            </button>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2">
-            <button id="shareLinkBtn" class="py-2.5 px-3 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-200 transition flex items-center justify-center gap-1.5">
-              🔗 Copiar Link Compartilhável
-            </button>
-            <button id="googleCalendarBtn" class="py-2.5 px-3 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 text-xs font-semibold transition flex items-center justify-center gap-1.5" title="Adiciona os dias presenciais ao Google Agenda">
-              📅 Adicionar ao Google Agenda
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Calendário -->
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
-      <div class="grid grid-cols-7 gap-2 mb-2 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">
-        <div class="text-slate-600">Dom</div>
-        <div>Seg</div>
-        <div>Ter</div>
-        <div>Qua</div>
-        <div>Qui</div>
-        <div>Sex</div>
-        <div class="text-slate-600">Sáb</div>
-      </div>
-      <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
-    </div>
-
-  </div>
-
-  <script>
-    const HOLIDAYS = {
-      '01-01': 'Confraternização Universal',
-      '03-06': 'Data Magna de PE',
-      '04-21': 'Tiradentes',
-      '05-01': 'Dia do Trabalho',
-      '06-24': 'São João',
-      '07-16': 'N. Sra. do Carmo',
-      '09-07': 'Independência do Brasil',
-      '10-12': 'N. Sra. Aparecida',
-      '11-02': 'Finados',
-      '11-15': 'Proclamação da República',
-      '11-20': 'Consciência Negra',
-      '12-08': 'N. Sra. da Conceição',
-      '12-25': 'Natal'
-    };
-
-    let state = {
-      year: new Date().getFullYear(),
-      month: new Date().getMonth(),
-      mode: 'percent',
-      targetPercent: 40,
-      targetWeekly: 2,
-      activeBrush: 'done',
-      favorites: [2, 4],
-      days: {}
-    };
-
-    const STORAGE_KEY = 'presencial_planner_v4';
-
-    function initFromURLOrStorage() {
-      const hash = window.location.hash;
-      if (hash.startsWith('#d=')) {
-        try {
-          const jsonStr = atob(hash.replace('#d=', ''));
-          const sharedData = JSON.parse(jsonStr);
-          if (sharedData.days) {
-            state.days = sharedData.days;
-            if (sharedData.year) state.year = sharedData.year;
-            if (sharedData.month !== undefined) state.month = sharedData.month;
-            if (sharedData.targetPercent) state.targetPercent = sharedData.targetPercent;
-          }
-          return;
-        } catch (e) {}
-      }
-
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          state = { ...state, ...parsed, year: new Date().getFullYear(), month: new Date().getMonth() };
-        } catch (e) {}
-      }
-      ensureMonthDefaults(state.year, state.month);
-    }
-
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        mode: state.mode,
-        targetPercent: state.targetPercent,
-        targetWeekly: state.targetWeekly,
-        favorites: state.favorites,
-        days: state.days
-      }));
-    }
-
-    function formatDateKey(year, month, day) {
-      const m = String(month + 1).padStart(2, '0');
-      const d = String(day).padStart(2, '0');
-      return `${year}-${m}-${d}`;
-    }
-
-    function ensureMonthDefaults(year, month) {
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      for (let d = 1; d <= daysInMonth; d++) {
-        const key = formatDateKey(year, month, d);
-        const mmdd = key.slice(5);
-        const dow = new Date(year, month, d).getDay();
-        const isWeekend = dow === 0 || dow === 6;
-        if (!isWeekend && state.days[key] === undefined && HOLIDAYS[mmdd]) {
-          state.days[key] = 'holiday';
-        }
-      }
-    }
-
-    function setBrush(brush) {
-      state.activeBrush = brush;
-      document.querySelectorAll('.brush-btn').forEach(btn => {
-        const isSelected = btn.dataset.brush === brush;
-        const b = btn.dataset.brush;
-        let borderClass = 'border-slate-800 bg-slate-950 text-slate-400';
-        if (isSelected) {
-          if (b === 'done') borderClass = 'border-blue-500 bg-blue-500/15 text-blue-200';
-          else if (b === 'office') borderClass = 'border-emerald-500 bg-emerald-500/15 text-emerald-200';
-          else if (b === 'vacation') borderClass = 'border-amber-500 bg-amber-500/15 text-amber-200';
-          else if (b === 'holiday') borderClass = 'border-rose-500 bg-rose-500/15 text-rose-200';
-        }
-        btn.className = `brush-btn flex flex-col items-center p-2 rounded-xl border text-xs font-medium transition ${borderClass}`;
-      });
-    }
-
-    function toggleDay(key) {
-      const current = state.days[key] || 'workday';
-      if (current === state.activeBrush) {
-        state.days[key] = 'workday';
-      } else {
-        state.days[key] = state.activeBrush;
-      }
-      saveState();
-      render();
-    }
-
-    function suggestMissingDays() {
-      const { year, month, mode, targetPercent, targetWeekly, favorites, days } = state;
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      let totalWeekdays = 0;
-      let deductedDays = 0;
-      let currentOfficeTotal = 0;
-
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateObj = new Date(year, month, d);
-        const dow = dateObj.getDay();
-        if (dow === 0 || dow === 6) continue;
-        totalWeekdays++;
-        const key = formatDateKey(year, month, d);
-        const status = days[key] || 'workday';
-        if (status === 'vacation' || status === 'holiday') deductedDays++;
-        if (status === 'office' || status === 'done') currentOfficeTotal++;
-      }
-
-      const availableWorkdays = Math.max(0, totalWeekdays - deductedDays);
-      const effectivePct = mode === 'percent' ? (targetPercent / 100) : (targetWeekly / 5);
-      const requiredDays = Math.ceil(availableWorkdays * effectivePct);
-      let missingCount = requiredDays - currentOfficeTotal;
-
-      if (missingCount <= 0) return;
-
-      let candidateDays = [];
-      for (let pass = 0; pass < 2; pass++) {
-        for (let d = 1; d <= daysInMonth; d++) {
-          const dateObj = new Date(year, month, d);
-          const dow = dateObj.getDay();
-          if (dow === 0 || dow === 6) continue;
-          const key = formatDateKey(year, month, d);
-          const status = days[key] || 'workday';
-
-          if (status === 'workday') {
-            const isFav = favorites.includes(dow);
-            if ((pass === 0 && isFav) || (pass === 1 && !isFav)) {
-              if (!candidateDays.includes(key)) candidateDays.push(key);
-            }
-          }
-        }
-      }
-
-      for (let i = 0; i < Math.min(missingCount, candidateDays.length); i++) {
-        days[candidateDays[i]] = 'office';
-      }
-
-      saveState();
-      render();
-    }
-
-    function render() {
-      const { year, month, mode, targetPercent, targetWeekly, favorites } = state;
-      const monthName = new Date(year, month, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-      document.getElementById('currentMonthLabel').textContent = monthName;
-
-      document.querySelectorAll('.fav-day-btn').forEach(btn => {
-        const dow = Number(btn.dataset.favDow);
-        const isFav = favorites.includes(dow);
-        btn.className = `fav-day-btn py-1.5 rounded-lg border text-xs font-medium transition ${
-          isFav 
-            ? 'bg-indigo-600/30 border-indigo-500 text-indigo-200' 
-            : 'bg-slate-950 border-slate-800 text-slate-500 hover:text-slate-300'
-        }`;
-      });
-
-      const isPercent = mode === 'percent';
-      document.getElementById('percentControl').classList.toggle('hidden', !isPercent);
-      document.getElementById('weeklyControl').classList.toggle('hidden', isPercent);
-      document.getElementById('modePercentBtn').className = `py-2 px-3 rounded-lg text-xs font-semibold transition ${isPercent ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`;
-      document.getElementById('modeWeeklyBtn').className = `py-2 px-3 rounded-lg text-xs font-semibold transition ${!isPercent ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`;
-
-      document.getElementById('targetPercent').value = targetPercent;
-      document.getElementById('targetPercentVal').textContent = `${targetPercent}%`;
-      document.getElementById('targetWeekly').value = targetWeekly;
-      document.getElementById('targetWeeklyVal').textContent = `${targetWeekly} ${targetWeekly > 1 ? 'dias/sem' : 'dia/sem'}`;
-
-      const grid = document.getElementById('calendarGrid');
-      grid.innerHTML = '';
-
-      const firstDayWeek = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      let totalWeekdays = 0;
-      let deductedDays = 0;
-      let totalPresence = 0;
-      let allPresenceDates = [];
-
-      for (let i = 0; i < firstDayWeek; i++) {
-        const empty = document.createElement('div');
-        empty.className = 'h-20 sm:h-24 rounded-xl bg-slate-950/40 border border-slate-800/40';
-        grid.appendChild(empty);
-      }
-
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateObj = new Date(year, month, d);
-        const dow = dateObj.getDay();
-        const isWeekend = dow === 0 || dow === 6;
-        const key = formatDateKey(year, month, d);
-        const mmdd = key.slice(5);
-        const status = state.days[key] || 'workday';
-
-        if (!isWeekend) {
-          totalWeekdays++;
-          if (status === 'vacation' || status === 'holiday') deductedDays++;
-          if (status === 'done' || status === 'office') {
-            totalPresence++;
-            allPresenceDates.push({ day: d, key, isDone: status === 'done' });
-          }
-        }
-
-        const cell = document.createElement('div');
-        let cellStyle = 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700 cursor-pointer';
-        let badgeHTML = '';
-
-        if (isWeekend) {
-          cellStyle = 'bg-slate-950/40 border-slate-800/50 text-slate-600 cursor-not-allowed disabled-day';
-        } else if (status === 'done') {
-          cellStyle = 'bg-blue-950/60 border-blue-500/60 text-blue-200 cursor-pointer shadow-sm';
-          badgeHTML = '<span class="mt-auto text-[11px] font-semibold px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 w-fit">✓ Já Fui</span>';
-        } else if (status === 'office') {
-          cellStyle = 'bg-emerald-950/60 border-emerald-500/60 text-emerald-200 cursor-pointer shadow-sm';
-          badgeHTML = '<span class="mt-auto text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 w-fit">Planejado</span>';
-        } else if (status === 'vacation') {
-          cellStyle = 'bg-amber-950/40 border-amber-500/50 text-amber-2
+          <button id="suggestDaysBtn" class="w-full py-2 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-5
