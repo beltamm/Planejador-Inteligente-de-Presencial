@@ -10,86 +10,416 @@
     body { font-family: 'Inter', sans-serif; }
     .day-card { transition: all 0.15s ease-in-out; user-select: none; }
     .day-card:hover:not(.disabled-day) { transform: translateY(-2px); }
+    .step-content { display: none; }
+    .step-content.active { display: block; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 flex flex-col items-center justify-center">
 
-  <div class="max-w-5xl mx-auto space-y-6">
+  <div class="max-w-3xl w-full space-y-6">
     
     <!-- Header -->
-    <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
-      <div>
-        <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Planejador Inteligente de Presencial</h1>
-        <p class="text-slate-400 text-sm mt-1">Feriados oficiais via API, geolocalização por município, banco de horas e Google Agenda.</p>
-      </div>
+    <header class="text-center space-y-2 border-b border-slate-800 pb-5">
+      <h1 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Planejador Inteligente de Presencial</h1>
+      <p class="text-slate-400 text-sm">Configure sua meta em etapas rápidas e ajuste seu calendário do mês.</p>
       
-      <!-- Seletor de Mês/Ano -->
-      <div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
-        <button id="prevMonth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-300 transition" title="Mês anterior">&larr;</button>
-        <span id="currentMonthLabel" class="font-semibold text-sm md:text-base px-3 min-w-[150px] text-center capitalize"></span>
-        <button id="nextMonth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-300 transition" title="Próximo mês">&rarr;</button>
+      <!-- Indicador de Passos -->
+      <div class="flex items-center justify-center gap-2 pt-3">
+        <span id="stepIndicator1" class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white transition">1. Local & Meta</span>
+        <span class="text-slate-600">→</span>
+        <span id="stepIndicator2" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-500 border border-slate-800 transition">2. Preferências & IA</span>
+        <span class="text-slate-600">→</span>
+        <span id="stepIndicator3" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-500 border border-slate-800 transition">3. Calendário & Escala</span>
       </div>
     </header>
 
-    <!-- Painel de Configuração e Localidade -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Card Principal do Wizard -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-xl">
       
-      <!-- Controles, Local e Metas (5 colunas) -->
-      <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">1. Localidade & Feriados</h2>
-        
-        <div class="grid grid-cols-2 gap-2">
+      <!-- PASSO 1: Localidade e Meta -->
+      <div id="step1" class="step-content active space-y-6">
+        <div class="space-y-1">
+          <h2 class="text-lg font-bold text-white">Onde você trabalha e qual a sua meta?</h2>
+          <p class="text-xs text-slate-400">Selecione seu estado e município para considerarmos os feriados locais oficiais.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="text-[11px] font-medium text-slate-400 block mb-1">Estado (UF)</label>
-            <select id="stateSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-              <option value="PE">Pernambuco (PE)</option>
+            <label class="text-xs font-medium text-slate-300 block mb-1.5">Estado (UF)</label>
+            <select id="stateSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="PE" selected>Pernambuco (PE)</option>
             </select>
           </div>
           <div>
-            <label class="text-[11px] font-medium text-slate-400 block mb-1">Município</label>
-            <select id="citySelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-              <option value="Recife">Recife</option>
+            <label class="text-xs font-medium text-slate-300 block mb-1.5">Município</label>
+            <select id="citySelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="Recife" selected>Recife</option>
             </select>
           </div>
         </div>
 
-        <hr class="border-slate-800">
+        <div class="space-y-3 pt-2">
+          <label class="text-xs font-medium text-slate-300 block">Formato da Meta de Presencial</label>
+          <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+            <button type="button" id="modePercentBtn" class="py-2.5 px-3 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white">Porcentagem do Mês</button>
+            <button type="button" id="modeWeeklyBtn" class="py-2.5 px-3 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Dias por Semana</button>
+          </div>
 
-        <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400">2. Configurar Meta</h2>
-        
-        <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
-          <button id="modePercentBtn" class="py-2 px-3 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white">Por % do Mês</button>
-          <button id="modeWeeklyBtn" class="py-2 px-3 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white">Dias / Semana</button>
+          <div id="percentControl" class="space-y-2 pt-2">
+            <div class="flex justify-between text-xs">
+              <label for="targetPercent" class="text-slate-300">Meta Desejada:</label>
+              <span id="targetPercentVal" class="font-bold text-indigo-400 text-sm">40%</span>
+            </div>
+            <input type="range" id="targetPercent" min="10" max="100" step="5" value="40" class="w-full accent-indigo-500 cursor-pointer">
+          </div>
+
+          <div id="weeklyControl" class="space-y-2 pt-2 hidden">
+            <div class="flex justify-between text-xs">
+              <label for="targetWeekly" class="text-slate-300">Frequência Semanal:</label>
+              <span id="targetWeeklyVal" class="font-bold text-indigo-400 text-sm">2 dias/sem</span>
+            </div>
+            <input type="range" id="targetWeekly" min="1" max="5" step="1" value="2" class="w-full accent-indigo-500 cursor-pointer">
+          </div>
         </div>
 
-        <div id="percentControl" class="space-y-1">
-          <div class="flex justify-between text-xs">
-            <label for="targetPercent" class="text-slate-300">Meta:</label>
-            <span id="targetPercentVal" class="font-bold text-indigo-400">40%</span>
-          </div>
-          <input type="range" id="targetPercent" min="10" max="100" step="5" value="40" class="w-full accent-indigo-500 cursor-pointer">
+        <div class="flex justify-end pt-4 border-t border-slate-800">
+          <button type="button" id="nextToStep2" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold text-white transition flex items-center gap-2">
+            Avançar →
+          </button>
+        </div>
+      </div>
+
+      <!-- PASSO 2: Dias Favoritos e IA -->
+      <div id="step2" class="step-content space-y-6">
+        <div class="space-y-1">
+          <h2 class="text-lg font-bold text-white">Quais são seus dias preferidos para ir?</h2>
+          <p class="text-xs text-slate-400">A inteligência do sistema usará essa preferência para sugerir os dias automaticamente quando você clicar em completar.</p>
         </div>
 
-        <div id="weeklyControl" class="space-y-1 hidden">
-          <div class="flex justify-between text-xs">
-            <label for="targetWeekly" class="text-slate-300">Dias/Semana:</label>
-            <span id="targetWeeklyVal" class="font-bold text-indigo-400">2 dias/sem</span>
+        <div class="space-y-3">
+          <label class="text-xs font-medium text-slate-300 block">Selecione seus dias favoritos da semana:</label>
+          <div class="grid grid-cols-5 gap-2" id="favoriteDaysContainer">
+            <button type="button" data-fav-dow="1" class="fav-day-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold transition text-slate-400">Seg</button>
+            <button type="button" data-fav-dow="2" class="fav-day-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold transition text-slate-400">Ter</button>
+            <button type="button" data-fav-dow="3" class="fav-day-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold transition text-slate-400">Qua</button>
+            <button type="button" data-fav-dow="4" class="fav-day-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold transition text-slate-400">Qui</button>
+            <button type="button" data-fav-dow="5" class="fav-day-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold transition text-slate-400">Sex</button>
           </div>
-          <input type="range" id="targetWeekly" min="1" max="5" step="1" value="2" class="w-full accent-indigo-500 cursor-pointer">
         </div>
 
-        <hr class="border-slate-800">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+          <span class="text-xs font-semibold text-indigo-400 block">💡 Dica de Produtividade</span>
+          <p class="text-xs text-slate-400">No próximo passo, você verá o calendário completo do mês. Os feriados nacionais e locais (como Data Magna, São João, Carmo e Conceição) já virão marcados e descontados automaticamente da sua conta.</p>
+        </div>
 
-        <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Dias Preferidos</span>
-            <span class="text-[10px] text-slate-500">Para sugestão IA</span>
+        <div class="flex justify-between pt-4 border-t border-slate-800">
+          <button type="button" id="backToStep1" class="px-5 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-sm font-medium text-slate-300 transition">
+            ← Voltar
+          </button>
+          <button type="button" id="nextToStep3" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold text-white transition flex items-center gap-2">
+            Ver Meu Calendário →
+          </button>
+        </div>
+      </div>
+
+      <!-- PASSO 3: O Calendário e Resumo Final -->
+      <div id="step3" class="step-content space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h2 id="currentMonthLabel" class="text-lg font-bold text-white capitalize">Mês / Ano</h2>
+            <p class="text-xs text-slate-400">Clique nos dias para marcar o que já foi (✓) ou planejar.</p>
           </div>
-          <div class="grid grid-cols-5 gap-1.5" id="favoriteDaysContainer">
-            <button data-fav-dow="1" class="fav-day-btn py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-medium transition text-slate-400">Seg</button>
-            <button data-fav-dow="2" class="fav-day-btn py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-medium transition text-slate-400">Ter</button>
-            <button data-fav-dow="3" class="fav-day-btn py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-medium transition text-slate-400">Qua</button>
-            <button data-fav-dow="4" class="fav-day-btn py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-medium transition text-slate-400">Qui</button>
-            <button data-fav-dow="5" class="fav-day-btn py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs font-medium transition text-slate-400">Sex</button>
+          <div class="flex items-center gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+            <button type="button" id="prevMonth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-300 transition" title="Mês anterior">←</button>
+            <span id="monthNavText" class="font-semibold text-xs px-2 text-center capitalize">Mês</span>
+            <button type="button" id="nextMonth" class="p-2 hover:bg-slate-800 rounded-lg text-slate-300 transition" title="Próximo mês">→</button>
           </div>
-          <button id="suggestDaysBtn" class="w-full py-2 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-5
+        </div>
+
+        <!-- Painel de Pincel e Ações Rápidas -->
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[11px] text-slate-400 mr-1 font-semibold">Pincel:</span>
+            <button type="button" data-brush="done" class="brush-btn px-3 py-1.5 rounded-lg border border-blue-500 bg-blue-500/15 text-blue-200 text-xs font-medium transition">✓ Já Fui</button>
+            <button type="button" data-brush="office" class="brush-btn px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 text-xs font-medium transition">📅 Planejado</button>
+            <button type="button" data-brush="vacation" class="brush-btn px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 text-xs font-medium transition">✈️ Férias</button>
+          </div>
+          <button type="button" id="suggestDaysBtn" class="py-1.5 px-3 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 text-xs font-semibold transition">
+            ✨ Completar com IA
+          </button>
+        </div>
+
+        <!-- Grid do Calendário -->
+        <div>
+          <div class="grid grid-cols-7 gap-1.5 mb-2 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+          </div>
+          <div id="calendarGrid" class="grid grid-cols-7 gap-1.5"></div>
+        </div>
+
+        <!-- Cards de Resumo -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl text-center">
+            <span class="text-[11px] text-slate-400 block">Meta Mínima</span>
+            <span id="statTargetDays" class="text-xl font-bold text-indigo-400 mt-0.5 block">0</span>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl text-center">
+            <span class="text-[11px] text-slate-400 block">Total Computado</span>
+            <span id="statPlannedDays" class="text-xl font-bold text-emerald-400 mt-0.5 block">0</span>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl text-center">
+            <span class="text-[11px] text-slate-400 block">% Atingida</span>
+            <span id="statCurrentPct" class="text-xl font-bold text-white mt-0.5 block">0%</span>
+          </div>
+          <div class="bg-slate-950 border border-indigo-500/30 bg-indigo-950/10 p-3 rounded-xl text-center">
+            <span class="text-[11px] text-indigo-300 block font-medium">Banco / Saldo</span>
+            <span id="statExtraBank" class="text-xl font-bold text-indigo-400 mt-0.5 block">0d</span>
+          </div>
+        </div>
+
+        <!-- Ações Finais -->
+        <div class="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <button type="button" id="backToStep2" class="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-300 transition">
+            ← Voltar aos Ajustes
+          </button>
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <button type="button" id="copySummaryBtn" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition">
+              Copiar Texto para o Slack
+            </button>
+            <button type="button" id="googleCalendarBtn" class="px-4 py-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 text-blue-300 text-xs font-semibold transition">
+              Google Agenda
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Feriados fixos nacionais + Pernambuco/Recife de segurança (sem depender de API externa lenta)
+    const FIXED_HOLIDAYS = {
+      '01-01': 'Confraternização Universal',
+      '03-06': 'Data Magna de PE',
+      '04-21': 'Tiradentes',
+      '05-01': 'Dia do Trabalho',
+      '06-24': 'São João',
+      '07-16': 'N. Sra. do Carmo',
+      '09-07': 'Independência do Brasil',
+      '10-12': 'N. Sra. Aparecida',
+      '11-02': 'Finados',
+      '11-15': 'Proclamação da República',
+      '11-20': 'Consciência Negra',
+      '12-08': 'N. Sra. da Conceição',
+      '12-25': 'Natal'
+    };
+
+    let state = {
+      step: 1,
+      year: new Date().getFullYear(),
+      month: new Date().getMonth(),
+      mode: 'percent',
+      targetPercent: 40,
+      targetWeekly: 2,
+      activeBrush: 'done',
+      favorites: [2, 4], // Terça e Quinta
+      uf: 'PE',
+      city: 'Recife',
+      days: {}
+    };
+
+    const STORAGE_KEY = 'presencial_wizard_v1';
+
+    function init() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          state = { ...state, ...parsed, year: new Date().getFullYear(), month: new Date().getMonth(), step: 1 };
+        } catch (e) {}
+      }
+      setupListeners();
+      updateWizardView();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        mode: state.mode,
+        targetPercent: state.targetPercent,
+        targetWeekly: state.targetWeekly,
+        favorites: state.favorites,
+        uf: state.uf,
+        city: state.city,
+        days: state.days
+      }));
+    }
+
+    function updateWizardView() {
+      // Alterna passos visíveis
+      document.querySelectorAll('.step-content').forEach((el, idx) => {
+        el.classList.toggle('active', idx + 1 === state.step);
+      });
+
+      // Indicadores no topo
+      for (let i = 1; i <= 3; i++) {
+        const ind = document.getElementById(`stepIndicator${i}`);
+        if (i === state.step) {
+          ind.className = "px-3 py-1 rounded-full text-xs font-semibold bg-indigo-600 text-white transition";
+        } else if (i < state.step) {
+          ind.className = "px-3 py-1 rounded-full text-xs font-semibold bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 transition";
+        } else {
+          ind.className = "px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-slate-500 border border-slate-800 transition";
+        }
+      }
+
+      if (state.step === 3) {
+        renderCalendar();
+      }
+    }
+
+    function setupListeners() {
+      // Navegação do Wizard
+      document.getElementById('nextToStep2').onclick = () => { state.step = 2; saveState(); updateWizardView(); };
+      document.getElementById('backToStep1').onclick = () => { state.step = 1; saveState(); updateWizardView(); };
+      document.getElementById('nextToStep3').onclick = () => { state.step = 3; saveState(); updateWizardView(); };
+      document.getElementById('backToStep2').onclick = () => { state.step = 2; saveState(); updateWizardView(); };
+
+      // Controles de meta
+      document.getElementById('modePercentBtn').onclick = () => {
+        state.mode = 'percent';
+        document.getElementById('percentControl').classList.remove('hidden');
+        document.getElementById('weeklyControl').classList.add('hidden');
+        document.getElementById('modePercentBtn').className = "py-2.5 px-3 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white";
+        document.getElementById('modeWeeklyBtn').className = "py-2.5 px-3 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white";
+        saveState();
+      };
+      document.getElementById('modeWeeklyBtn').onclick = () => {
+        state.mode = 'weekly';
+        document.getElementById('percentControl').classList.add('hidden');
+        document.getElementById('weeklyControl').classList.remove('hidden');
+        document.getElementById('modeWeeklyBtn').className = "py-2.5 px-3 rounded-lg text-xs font-semibold transition bg-indigo-600 text-white";
+        document.getElementById('modePercentBtn').className = "py-2.5 px-3 rounded-lg text-xs font-semibold transition text-slate-400 hover:text-white";
+        saveState();
+      };
+
+      document.getElementById('targetPercent').oninput = (e) => {
+        state.targetPercent = Number(e.target.value);
+        document.getElementById('targetPercentVal').textContent = `${state.targetPercent}%`;
+        saveState();
+      };
+      document.getElementById('targetWeekly').oninput = (e) => {
+        state.targetWeekly = Number(e.target.value);
+        document.getElementById('targetWeeklyVal').textContent = `${state.targetWeekly} dias/sem`;
+        saveState();
+      };
+
+      // Dias favoritos
+      document.querySelectorAll('.fav-day-btn').forEach(btn => {
+        const dow = Number(btn.dataset.favDow);
+        if (state.favorites.includes(dow)) {
+          btn.className = "fav-day-btn py-3 rounded-xl bg-indigo-600/30 border border-indigo-500 text-xs font-semibold transition text-indigo-200";
+        }
+        btn.onclick = () => {
+          const idx = state.favorites.indexOf(dow);
+          if (idx > -1) {
+            state.favorites.splice(idx, 1);
+            btn.className = "fav-day-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold transition text-slate-400";
+          } else {
+            state.favorites.push(dow);
+            btn.className = "fav-day-btn py-3 rounded-xl bg-indigo-600/30 border border-indigo-500 text-xs font-semibold transition text-indigo-200";
+          }
+          saveState();
+        };
+      });
+
+      // Pincel do Calendário
+      document.querySelectorAll('.brush-btn').forEach(btn => {
+        btn.onclick = () => {
+          state.activeBrush = btn.dataset.brush;
+          document.querySelectorAll('.brush-btn').forEach(b => {
+            b.className = "brush-btn px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-400 text-xs font-medium transition";
+          });
+          btn.className = `brush-btn px-3 py-1.5 rounded-lg border text-xs font-medium transition ${
+            state.activeBrush === 'done' ? 'border-blue-500 bg-blue-500/15 text-blue-200' :
+            state.activeBrush === 'office' ? 'border-emerald-500 bg-emerald-500/15 text-emerald-200' :
+            'border-amber-500 bg-amber-500/15 text-amber-200'
+          }`;
+        };
+      });
+
+      // Navegação de mês
+      document.getElementById('prevMonth').onclick = () => {
+        state.month--;
+        if (state.month < 0) { state.month = 11; state.year--; }
+        renderCalendar();
+      };
+      document.getElementById('nextMonth').onclick = () => {
+        state.month++;
+        if (state.month > 11) { state.month = 0; state.year++; }
+        renderCalendar();
+      };
+
+      document.getElementById('suggestDaysBtn').onclick = suggestMissingDays;
+
+      document.getElementById('copySummaryBtn').onclick = () => {
+        const daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
+        const dates = [];
+        for (let d = 1; d <= daysInMonth; d++) {
+          const key = formatDateKey(state.year, state.month, d);
+          if (state.days[key] === 'done' || state.days[key] === 'office') {
+            dates.push(`${String(d).padStart(2, '0')}/${String(state.month + 1).padStart(2, '0')}`);
+          }
+        }
+        const monthName = new Date(state.year, state.month, 1).toLocaleDateString('pt-BR', { month: 'long' });
+        const text = dates.length > 0 ? `📅 Presencial em ${monthName} (${dates.length} dias): ${dates.join(', ')}` : `Nenhum dia registrado.`;
+        navigator.clipboard.writeText(text);
+        const btn = document.getElementById('copySummaryBtn');
+        btn.textContent = 'Copiado!';
+        setTimeout(() => btn.textContent = 'Copiar Texto para o Slack', 2000);
+      };
+
+      document.getElementById('googleCalendarBtn').onclick = () => {
+        const targetDateStr = `${state.year}${String(state.month+1).padStart(2,'0')}01`;
+        window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=Trabalho+Presencial&dates=${targetDateStr}/${targetDateStr}`, '_blank');
+      };
+    }
+
+    function formatDateKey(year, month, day) {
+      return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+
+    function ensureMonthDefaults(year, month) {
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = formatDateKey(year, month, d);
+        const mmdd = key.slice(5);
+        const dow = new Date(year, month, d).getDay();
+        const isWeekend = dow === 0 || dow === 6;
+        if (!isWeekend && state.days[key] === undefined && FIXED_HOLIDAYS[mmdd]) {
+          state.days[key] = 'holiday';
+        }
+      }
+    }
+
+    function toggleDay(key) {
+      const current = state.days[key] || 'workday';
+      if (current === state.activeBrush) {
+        state.days[key] = 'workday';
+      } else {
+        state.days[key] = state.activeBrush;
+      }
+      saveState();
+      renderCalendar();
+    }
+
+    function suggestMissingDays() {
+      ensureMonthDefaults(state.year, state.month);
+      const daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
+      let currentOfficeTotal = 0;
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = formatDateKey(state.year, state.month, d);
+        const status = state.days[key] || 'workday';
+        if (status === 'office' || status === 'done') currentOfficeTotal++;
+      }
