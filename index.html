@@ -105,4 +105,1038 @@
                 <span class="text-indigo-400 font-bold text-xs">dias/sem</span>
               </div>
             </div>
-            <input type="range" id="rangeWk" min="1" max="7"
+            <input type="range" id="rangeWk" min="1" max="7" step="1" value="2" class="w-full accent-indigo-500 cursor-pointer">
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-4 border-t border-slate-800">
+          <button type="button" id="btnNext1" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs md:text-sm font-semibold text-white transition">
+            Avançar (Enter) →
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= PASSO 2: DIAS FAVORITOS & JÁ FUI ================= -->
+      <div id="step2" class="step-pane space-y-6">
+        <div>
+          <h2 class="text-lg font-bold text-white">Passo 2: Suas Preferências e Dias Já Realizados</h2>
+          <p class="text-xs text-slate-400 mt-0.5">A sugestão inteligente vai usar seus dias favoritos para montar a agenda perfeita.</p>
+        </div>
+
+        <!-- Dias Favoritos (Dom a Sáb) -->
+        <div class="space-y-2">
+          <label class="text-xs font-medium text-slate-300 block">Quais dias da semana você prefere ir presencialmente?</label>
+          <div class="grid grid-cols-7 gap-1.5" id="favDaysGrid">
+            <button type="button" data-dow="0" class="fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-500 transition">Dom</button>
+            <button type="button" data-dow="1" class="fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-400 transition">Seg</button>
+            <button type="button" data-dow="2" class="fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-400 transition">Ter</button>
+            <button type="button" data-dow="3" class="fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-400 transition">Qua</button>
+            <button type="button" data-dow="4" class="fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-400 transition">Qui</button>
+            <button type="button" data-dow="5" class="fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-400 transition">Sex</button>
+            <button type="button" data-dow="6" class="fav-btn py-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-500 transition">Sáb</button>
+          </div>
+        </div>
+
+        <!-- "Já fui X dias" / Férias no mês -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-800">
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <label for="inputAlreadyWent" class="text-xs font-semibold text-blue-300">✓ Já foi alguns dias este mês?</label>
+              <input type="number" id="inputAlreadyWent" min="0" max="31" value="0" class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-center font-bold text-blue-400 text-sm focus:outline-none focus:border-blue-500">
+            </div>
+            <p class="text-[11px] text-slate-400">Se você já cumpriu alguns dias antes de hoje, informe aqui (ou marque direto no calendário a seguir) que nós abatemos da meta restante.</p>
+          </div>
+
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+            <div class="flex justify-between items-center">
+              <label class="text-xs font-semibold text-indigo-300">📊 Prévia da sua Conta</label>
+              <span id="previewCalcBadge" class="text-xs font-bold text-indigo-400">0 dias necessários</span>
+            </div>
+            <p id="previewCalcDesc" class="text-[11px] text-slate-400">Calculando dias úteis do mês...</p>
+          </div>
+        </div>
+
+        <div class="flex justify-between pt-4 border-t border-slate-800">
+          <button type="button" id="btnBack2" class="px-5 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-300 transition">
+            ← Voltar
+          </button>
+          <button type="button" id="btnNext2" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs md:text-sm font-semibold text-white transition">
+            Gerar Calendário Sugerido (Enter) →
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= PASSO 3: CALENDÁRIO INTELIGENTE ================= -->
+      <div id="step3" class="step-pane space-y-5">
+        
+        <!-- Topo do Calendário -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 id="lblCalTitle" class="text-lg font-bold text-white capitalize">Mês Ano</h2>
+              <span id="lblStatusBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold">Status</span>
+            </div>
+            <p id="lblCitySubtitle" class="text-xs text-indigo-400 font-medium mt-0.5">📍 Localidade</p>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <button type="button" id="btnPrevMonth" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 hover:bg-slate-800 rounded-lg text-xs text-slate-300 transition">←</button>
+            <button type="button" id="btnAutoFill" class="px-3 py-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 rounded-lg text-xs font-semibold text-indigo-300 transition">
+              ✨ Recalcular Sugestão IA
+            </button>
+            <button type="button" id="btnNextMonth" class="px-2.5 py-1.5 bg-slate-950 border border-slate-800 hover:bg-slate-800 rounded-lg text-xs text-slate-300 transition">→</button>
+          </div>
+        </div>
+
+        <!-- Barra de Pincéis Interativos -->
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span class="text-[11px] text-slate-400 font-semibold mr-1">O que o clique no dia faz:</span>
+            <button type="button" data-brush="office" class="brush-btn px-2.5 py-1 rounded-lg border text-xs font-medium transition">📅 Planejado</button>
+            <button type="button" data-brush="done" class="brush-btn px-2.5 py-1 rounded-lg border text-xs font-medium transition">✓ Já Fui</button>
+            <button type="button" data-brush="vacation" class="brush-btn px-2.5 py-1 rounded-lg border text-xs font-medium transition">✈️ Férias/Folga</button>
+            <button type="button" data-brush="holiday" class="brush-btn px-2.5 py-1 rounded-lg border text-xs font-medium transition">🎉 Feriado Extra</button>
+          </div>
+          <button type="button" id="btnClearMonth" class="text-[11px] text-slate-400 hover:text-rose-400 px-2 py-1 transition">Limpar Mês</button>
+        </div>
+
+        <!-- Grade do Calendário -->
+        <div>
+          <div class="grid grid-cols-7 gap-1.5 mb-1.5 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+          </div>
+          <div id="calendarGrid" class="grid grid-cols-7 gap-1.5"></div>
+        </div>
+
+        <!-- Métricas e Banco de Horas -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-1">
+          <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center">
+            <span class="text-[10px] text-slate-400 block">Dias Úteis Base</span>
+            <span id="statWorkdays" class="text-lg font-bold text-white">0</span>
+            <span id="statDeducted" class="text-[10px] text-slate-500 block">0 feriados/férias</span>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center">
+            <span class="text-[10px] text-slate-400 block">Meta Exigida</span>
+            <span id="statTarget" class="text-lg font-bold text-indigo-400">0</span>
+            <span id="statTargetPct" class="text-[10px] text-slate-500 block">40%</span>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center">
+            <span class="text-[10px] text-slate-400 block">Já Fui + Planejado</span>
+            <span id="statTotal" class="text-lg font-bold text-emerald-400">0</span>
+            <span id="statBreakdown" class="text-[10px] text-slate-500 block">0 feitos / 0 plan.</span>
+          </div>
+          <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl text-center">
+            <span class="text-[10px] text-slate-400 block">% Atingida</span>
+            <span id="statPct" class="text-lg font-bold text-white">0%</span>
+            <span id="statMissing" class="text-[10px] text-slate-500 block">Faltam 0</span>
+          </div>
+          <div class="col-span-2 sm:col-span-1 bg-indigo-950/20 border border-indigo-500/30 p-2.5 rounded-xl text-center">
+            <span class="text-[10px] text-indigo-300 font-medium block">Banco / Saldo</span>
+            <span id="statBank" class="text-lg font-bold text-indigo-400">+0d</span>
+            <span id="statBankSub" class="text-[10px] text-indigo-300/70 block">Sem excedente</span>
+          </div>
+        </div>
+
+        <!-- Preview de Texto e Botões de Compartilhamento / Agenda -->
+        <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl space-y-3">
+          <div class="text-xs text-slate-300 truncate" id="txtSummaryPreview">
+            Selecione seus dias no calendário...
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
+            <button type="button" id="btnBack3" class="px-3.5 py-2 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-medium text-slate-300 transition">
+              ← Ajustar Regras
+            </button>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" id="btnCopyText" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition">
+                📋 Copiar p/ Slack/Teams
+              </button>
+              <button type="button" id="btnShareUrl" class="px-3.5 py-2 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-semibold text-slate-200 transition">
+                🔗 Copiar Link da Escala
+              </button>
+              <button type="button" id="btnGoogleCal" class="px-3.5 py-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-xs font-semibold text-blue-300 transition">
+                📅 Google Agenda
+              </button>
+              <button type="button" id="btnDownloadIcs" class="px-3.5 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-xs font-semibold text-emerald-300 transition" title="Baixar arquivo para importar todos os dias de uma vez no Google Agenda ou Outlook">
+                ⬇️ Baixar .ICS (Todos)
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ============================================================================
+    // 1. BASE DE ESTADOS, CAPITAIS, POLOS REGIONAIS E FERIADOS OFICIAIS
+    // ============================================================================
+    const STATES = [
+      { uf: 'AC', name: 'Acre', fallbackCities: ['Rio Branco', 'Cruzeiro do Sul'] },
+      { uf: 'AL', name: 'Alagoas', fallbackCities: ['Maceió', 'Arapiraca'] },
+      { uf: 'AP', name: 'Amapá', fallbackCities: ['Macapá', 'Santana'] },
+      { uf: 'AM', name: 'Amazonas', fallbackCities: ['Manaus', 'Parintins'] },
+      { uf: 'BA', name: 'Bahia', fallbackCities: ['Salvador', 'Feira de Santana', 'Vitória da Conquista', 'Camaçari', 'Ilhéus', 'Juazeiro'] },
+      { uf: 'CE', name: 'Ceará', fallbackCities: ['Fortaleza', 'Caucaia', 'Juazeiro do Norte', 'Sobral'] },
+      { uf: 'DF', name: 'Distrito Federal', fallbackCities: ['Brasília'] },
+      { uf: 'ES', name: 'Espírito Santo', fallbackCities: ['Vitória', 'Vila Velha', 'Serra', 'Cariacica'] },
+      { uf: 'GO', name: 'Goiás', fallbackCities: ['Goiânia', 'Aparecida de Goiânia', 'Anápolis', 'Alto Paraíso de Goiás'] },
+      { uf: 'MA', name: 'Maranhão', fallbackCities: ['São Luís', 'Imperatriz'] },
+      { uf: 'MT', name: 'Mato Grosso', fallbackCities: ['Cuiabá', 'Várzea Grande', 'Rondonópolis'] },
+      { uf: 'MS', name: 'Mato Grosso do Sul', fallbackCities: ['Campo Grande', 'Dourados'] },
+      { uf: 'MG', name: 'Minas Gerais', fallbackCities: ['Belo Horizonte', 'Uberlândia', 'Contagem', 'Juiz de Fora', 'Betim', 'Ouro Preto'] },
+      { uf: 'PA', name: 'Pará', fallbackCities: ['Belém', 'Ananindeua', 'Santarém'] },
+      { uf: 'PB', name: 'Paraíba', fallbackCities: ['João Pessoa', 'Campina Grande', 'Patos'] },
+      { uf: 'PR', name: 'Paraná', fallbackCities: ['Curitiba', 'Londrina', 'Maringá', 'Ponta Grossa', 'Cascavel', 'Foz do Iguaçu'] },
+      { uf: 'PE', name: 'Pernambuco', fallbackCities: ['Recife', 'Caruaru', 'Surubim', 'Santa Cruz do Capibaribe', 'Olinda', 'Jaboatão dos Guararapes', 'Paulista', 'Petrolina', 'Garanhuns', 'Cabo de Santo Agostinho', 'Vitória de Santo Antão', 'Igarassu'] },
+      { uf: 'PI', name: 'Piauí', fallbackCities: ['Teresina', 'Parnaíba'] },
+      { uf: 'RJ', name: 'Rio de Janeiro', fallbackCities: ['Rio de Janeiro', 'Niterói', 'São Gonçalo', 'Duque de Caxias', 'Nova Iguaçu', 'Petrópolis', 'Campos dos Goytacazes'] },
+      { uf: 'RN', name: 'Rio Grande do Norte', fallbackCities: ['Natal', 'Mossoró', 'Parnamirim'] },
+      { uf: 'RS', name: 'Rio Grande do Sul', fallbackCities: ['Porto Alegre', 'Caxias do Sul', 'Canoas', 'Pelotas', 'Santa Maria', 'Gramado'] },
+      { uf: 'RO', name: 'Rondônia', fallbackCities: ['Porto Velho', 'Ji-Paraná'] },
+      { uf: 'RR', name: 'Roraima', fallbackCities: ['Boa Vista'] },
+      { uf: 'SC', name: 'Santa Catarina', fallbackCities: ['Florianópolis', 'Joinville', 'Blumenau', 'São José', 'Chapecó', 'Itajaí'] },
+      { uf: 'SP', name: 'São Paulo', fallbackCities: ['São Paulo', 'Campinas', 'Santos', 'São Bernardo do Campo', 'Santo André', 'São José dos Campos', 'Ribeirão Preto', 'Sorocaba', 'Osasco', 'Guarulhos', 'Barueri'] },
+      { uf: 'SE', name: 'Sergipe', fallbackCities: ['Aracaju', 'Nossa Senhora do Socorro'] },
+      { uf: 'TO', name: 'Tocantins', fallbackCities: ['Palmas', 'Araguaína'] }
+    ];
+
+    // Feriados Nacionais Fixos
+    const NATIONAL_FIXED = {
+      '01-01': 'Confraternização Universal',
+      '04-21': 'Tiradentes',
+      '05-01': 'Dia do Trabalho',
+      '09-07': 'Independência do Brasil',
+      '10-12': 'N. Sra. Aparecida',
+      '11-02': 'Finados',
+      '11-15': 'Proclamação da República',
+      '11-20': 'Consciência Negra',
+      '12-25': 'Natal'
+    };
+
+    // Feriados Estaduais Oficiais de Todos os 27 Estados
+    const STATE_HOLIDAYS = {
+      'AC': { '01-23': 'Dia do Evangélico', '06-15': 'Aniversário do Acre', '09-05': 'Dia da Amazônia', '11-17': 'Tratado de Petrópolis' },
+      'AL': { '06-24': 'São João', '06-29': 'São Pedro', '09-16': 'Emancipação de Alagoas' },
+      'AP': { '03-19': 'São José', '07-25': 'São Tiago', '09-13': 'Criação do Ex-Território' },
+      'AM': { '09-05': 'Elevação do Amazonas', '12-08': 'N. Sra. da Conceição' },
+      'BA': { '07-02': 'Independência da Bahia' },
+      'CE': { '03-19': 'São José', '03-25': 'Data Magna do Ceará' },
+      'DF': { '04-21': 'Fundação de Brasília', '11-30': 'Dia do Evangélico' },
+      'ES': { '05-23': 'Colonização do Solo Espírito-Santense' },
+      'GO': { '07-26': 'Fundação da Cidade de Goiás', '10-24': 'Pedra Fundamental de Goiânia' },
+      'MA': { '07-28': 'Adesão do Maranhão à Independência' },
+      'MT': { '11-20': 'Consciência Negra' },
+      'MS': { '10-11': 'Criação do Estado (MS)' },
+      'MG': { '04-21': 'Data Magna de MG' },
+      'PA': { '08-15': 'Adesão do Pará à Independência' },
+      'PB': { '08-05': 'Fundação do Estado da Paraíba' },
+      'PR': { '12-19': 'Emancipação do Paraná' },
+      'PE': { '03-06': 'Data Magna de PE', '06-24': 'São João' },
+      'PI': { '10-19': 'Dia do Piauí' },
+      'RJ': { '04-23': 'Dia de São Jorge' },
+      'RN': { '08-07': 'Dia do RN', '10-03': 'Mártires de Cunhaú e Uruaçu' },
+      'RS': { '09-20': 'Revolução Farroupilha' },
+      'RO': { '01-04': 'Criação do Estado (RO)', '06-18': 'Dia do Evangélico' },
+      'RR': { '10-05': 'Criação do Estado (RR)' },
+      'SC': { '08-11': 'Criação da Capitania (SC)' },
+      'SP': { '07-09': 'Revolução Constitucionalista' },
+      'SE': { '07-08': 'Autonomia Política de Sergipe' },
+      'TO': { '03-18': 'Autonomia do Tocantins', '09-08': 'N. Sra. da Natividade', '10-05': 'Criação do Tocantins' }
+    };
+
+    // Feriados Municipais das Capitais e Polos Regionais
+    const MUNICIPAL_HOLIDAYS = {
+      'PE:Recife': { '07-16': 'N. Sra. do Carmo', '12-08': 'N. Sra. da Conceição' },
+      'PE:Olinda': { '03-12': 'Aniversário de Olinda', '08-06': 'São Salvador do Mundo', '12-08': 'N. Sra. da Conceição' },
+      'PE:Jaboatão dos Guararapes': { '01-15': 'Santo Amaro', '05-04': 'Fundação de Jaboatão' },
+      'PE:Paulista': { '09-04': 'Emancipação de Paulista', '12-08': 'N. Sra. da Conceição' },
+      'PE:Caruaru': { '05-18': 'Aniversário de Caruaru', '06-29': 'São Pedro', '09-15': 'N. Sra. das Dores' },
+      'PE:Surubim': { '03-19': 'São José', '09-11': 'Emancipação de Surubim' },
+      'PE:Santa Cruz do Capibaribe': { '05-29': 'Emancipação Política', '09-29': 'Senhor Bom Jesus dos Aflitos' },
+      'PE:Petrolina': { '08-15': 'N. Sra. Rainha dos Anjos', '09-21': 'Emancipação de Petrolina' },
+      'PE:Garanhuns': { '02-04': 'Aniversário de Garanhuns', '06-13': 'Santo Antônio' },
+      'SP:São Paulo': { '01-25': 'Aniversário de SP' },
+      'SP:Campinas': { '07-14': 'Aniversário de Campinas', '12-08': 'N. Sra. da Conceição' },
+      'SP:Santos': { '01-26': 'Aniversário de Santos', '09-08': 'N. Sra. do Monte Serrat' },
+      'SP:São Bernardo do Campo': { '08-20': 'Aniversário de SBC' },
+      'SP:Santo André': { '04-08': 'Aniversário de Santo André' },
+      'SP:São José dos Campos': { '03-19': 'São José', '07-27': 'Aniversário de SJC' },
+      'SP:Ribeirão Preto': { '01-20': 'São Sebastião', '06-19': 'Aniversário de Ribeirão' },
+      'SP:Sorocaba': { '08-15': 'Aniversário de Sorocaba' },
+      'RJ:Rio de Janeiro': { '01-20': 'São Sebastião', '03-01': 'Aniversário do Rio' },
+      'RJ:Niterói': { '06-24': 'São João', '11-22': 'Aniversário de Niterói' },
+      'RJ:Petrópolis': { '03-16': 'Fundação de Petrópolis', '06-29': 'Chegada dos Colonos Alemães' },
+      'MG:Belo Horizonte': { '08-15': 'N. Sra. da Boa Viagem', '12-12': 'Aniversário de BH' },
+      'MG:Uberlândia': { '08-15': 'N. Sra. da Abadia', '08-31': 'Aniversário de Uberlândia' },
+      'MG:Juiz de Fora': { '05-31': 'Aniversário de Juiz de Fora', '06-13': 'Santo Antônio' },
+      'BA:Salvador': { '06-24': 'São João', '12-08': 'N. Sra. da Conceição da Praia' },
+      'BA:Feira de Santana': { '06-24': 'São João', '07-26': 'Senhora Sant\'Ana' },
+      'CE:Fortaleza': { '04-13': 'Aniversário de Fortaleza', '08-15': 'N. Sra. da Assunção' },
+      'PR:Curitiba': { '09-08': 'N. Sra. da Luz dos Pinhais' },
+      'PR:Londrina': { '06-12': 'Sagrado Coração de Jesus', '12-10': 'Aniversário de Londrina' },
+      'RS:Porto Alegre': { '02-02': 'N. Sra. dos Navegantes' },
+      'SC:Florianópolis': { '03-23': 'Aniversário de Florianópolis' },
+      'GO:Goiânia': { '05-24': 'N. Sra. Auxiliadora', '10-24': 'Aniversário de Goiânia' },
+      'PA:Belém': { '01-12': 'Aniversário de Belém', '12-08': 'N. Sra. da Conceição' },
+      'AM:Manaus': { '10-24': 'Aniversário de Manaus', '12-08': 'N. Sra. da Conceição' },
+      'MA:São Luís': { '06-29': 'São Pedro', '09-08': 'Natividade de N. Sra.' },
+      'PB:João Pessoa': { '06-24': 'São João', '08-05': 'N. Sra. das Neves', '12-08': 'N. Sra. da Conceição' },
+      'PB:Campina Grande': { '06-24': 'São João', '10-11': 'Aniversário de Campina Grande', '12-08': 'N. Sra. da Conceição' },
+      'RN:Natal': { '01-06': 'Santos Reis', '11-21': 'N. Sra. da Apresentação' },
+      'AL:Maceió': { '06-24': 'São João', '08-27': 'N. Sra. dos Prazeres', '12-05': 'Aniversário de Maceió', '12-08': 'N. Sra. da Conceição' },
+      'SE:Aracaju': { '03-17': 'Aniversário de Aracaju', '06-24': 'São João', '12-08': 'N. Sra. da Conceição' },
+      'PI:Teresina': { '08-16': 'Aniversário de Teresina', '12-08': 'N. Sra. da Conceição' },
+      'ES:Vitória': { '09-08': 'N. Sra. da Vitória / Aniversário' },
+      'MT:Cuiabá': { '04-08': 'Aniversário de Cuiabá', '12-08': 'N. Sra. da Conceição' },
+      'MS:Campo Grande': { '06-13': 'Santo Antônio', '08-26': 'Aniversário de Campo Grande' },
+      'AC:Rio Branco': { '12-28': 'Aniversário de Rio Branco' },
+      'RO:Porto Velho': { '01-24': 'São Francisco de Sales', '10-02': 'Criação do Município' },
+      'RR:Boa Vista': { '06-29': 'São Pedro', '07-09': 'Aniversário de Boa Vista' },
+      'AP:Macapá': { '02-04': 'Aniversário de Macapá', '03-19': 'São José' },
+      'TO:Palmas': { '03-19': 'São José', '05-20': 'Aniversário de Palmas' }
+    };
+
+    // Algoritmo de Computus (Meeus/Jones/Butcher) para calcular Feriados Móveis de qualquer ano
+    function getMovableHolidays(year) {
+      const a = year % 19;
+      const b = Math.floor(year / 100);
+      const c = year % 100;
+      const d = Math.floor(b / 4);
+      const e = b % 4;
+      const f = Math.floor((b + 8) / 25);
+      const g = Math.floor((b - f + 1) / 3);
+      const h = (19 * a + b - d - g + 15) % 30;
+      const i = Math.floor(c / 4);
+      const k = c % 4;
+      const l = (32 + 2 * e + 2 * i - h - k) % 7;
+      const m = Math.floor((a + 11 * h + 22 * l) / 451);
+      const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+      const day = ((h + l - 7 * m + 114) % 31) + 1;
+
+      const easter = new Date(year, month, day);
+      const addDays = (base, delta) => {
+        const dt = new Date(base);
+        dt.setDate(dt.getDate() + delta);
+        const mm = String(dt.getMonth() + 1).padStart(2, '0');
+        const dd = String(dt.getDate()).padStart(2, '0');
+        return `${mm}-${dd}`;
+      };
+
+      return {
+        [addDays(easter, -48)]: 'Segunda de Carnaval',
+        [addDays(easter, -47)]: 'Terça de Carnaval',
+        [addDays(easter, -2)]: 'Sexta-feira Santa',
+        [addDays(easter, 60)]: 'Corpus Christi'
+      };
+    }
+
+    // Consolida todos os feriados do Ano + Estado + Município
+    function getAllHolidaysMap(year, uf, city) {
+      const movable = getMovableHolidays(year);
+      const stateH = STATE_HOLIDAYS[uf] || {};
+      const muniH = MUNICIPAL_HOLIDAYS[`${uf}:${city}`] || {};
+      return { ...NATIONAL_FIXED, ...movable, ...stateH, ...muniH };
+    }
+
+    // ============================================================================
+    // 2. ESTADO GLOBAL DA APLICAÇÃO
+    // ============================================================================
+    const STORAGE_KEY = 'planejador_presencial_pro_v1';
+    const citiesCache = {};
+
+    const store = {
+      step: 1,
+      year: new Date().getFullYear(),
+      month: new Date().getMonth(),
+      uf: 'PE',
+      city: 'Recife',
+      mode: 'pct',      // 'pct' ou 'wk'
+      valPct: 40,
+      valWk: 2,
+      favs: [2, 4],     // Terça e Quinta padrão
+      alreadyWent: 0,   // Quantos dias a pessoa diz que já foi no Passo 2
+      activeBrush: 'office',
+      days: {}          // 'YYYY-MM-DD': 'office' | 'done' | 'vacation' | 'holiday' | 'work'
+    };
+
+    const WEEKEND_JOKES = [
+      "Sábado ou Domingo?! Calma aí, o prêmio de funcionário do mês não paga terapia! ☕🦖",
+      "Trabalhar presencial no fim de semana? Alguém avisa o RH que temos um infiltrado! 🚨",
+      "Fim de semana selecionado! Nem o chefe vai estar lá pra ver essa sua dedicação toda, visse?",
+      "Modo Workaholic Extremo ativado! Cuidado pra não trancarem você no prédio com o segurança. 👀"
+    ];
+
+    // ============================================================================
+    // 3. INICIALIZAÇÃO E LISTENERS
+    // ============================================================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      loadFromStorageOrUrl();
+      populateStatesDropdown();
+      await populateCitiesDropdown(store.uf, store.city);
+      syncStep1Inputs();
+      renderFavButtons();
+      setBrush('office');
+      updateHolidaysPreview();
+
+      // Eventos Passo 1: Mês, UF, Cidade
+      document.getElementById('inputMonthYear').onchange = (e) => {
+        if (!e.target.value) return;
+        const [y, m] = e.target.value.split('-').map(Number);
+        store.year = y;
+        store.month = m - 1;
+        updateHolidaysPreview();
+        saveState();
+      };
+
+      document.getElementById('selectUf').onchange = async (e) => {
+        store.uf = e.target.value;
+        await populateCitiesDropdown(store.uf);
+        updateHolidaysPreview();
+        saveState();
+      };
+
+      document.getElementById('selectCity').onchange = (e) => {
+        store.city = e.target.value;
+        updateHolidaysPreview();
+        saveState();
+      };
+
+      // Alternar modo % vs Dias/Semana
+      document.getElementById('btnModePct').onclick = () => {
+        store.mode = 'pct';
+        syncStep1Inputs();
+        saveState();
+      };
+      document.getElementById('btnModeWk').onclick = () => {
+        store.mode = 'wk';
+        syncStep1Inputs();
+        saveState();
+      };
+
+      // Sincronia Slider <-> Número Digitado (%)
+      const rangePct = document.getElementById('rangePct');
+      const numPct = document.getElementById('numPct');
+      rangePct.oninput = (e) => {
+        store.valPct = Number(e.target.value);
+        numPct.value = store.valPct;
+        saveState();
+      };
+      numPct.oninput = (e) => {
+        let val = Number(e.target.value);
+        if (val < 1) val = 1;
+        if (val > 100) val = 100;
+        store.valPct = val;
+        rangePct.value = val;
+        saveState();
+      };
+
+      // Sincronia Slider <-> Número Digitado (Dias/Semana)
+      const rangeWk = document.getElementById('rangeWk');
+      const numWk = document.getElementById('numWk');
+      rangeWk.oninput = (e) => {
+        store.valWk = Number(e.target.value);
+        numWk.value = store.valWk;
+        saveState();
+      };
+      numWk.oninput = (e) => {
+        let val = Number(e.target.value);
+        if (val < 1) val = 1;
+        if (val > 7) val = 7;
+        store.valWk = val;
+        rangeWk.value = val;
+        saveState();
+      };
+
+      // Input "Já fui X dias" no Passo 2
+      document.getElementById('inputAlreadyWent').oninput = (e) => {
+        store.alreadyWent = Math.max(0, Math.min(31, Number(e.target.value) || 0));
+        updateStep2Preview();
+        saveState();
+      };
+
+      // Botões de Dias Favoritos (Dom a Sáb)
+      document.querySelectorAll('.fav-btn').forEach(btn => {
+        btn.onclick = () => {
+          const dow = Number(btn.dataset.dow);
+          const idx = store.favs.indexOf(dow);
+          if (idx > -1) {
+            store.favs.splice(idx, 1);
+          } else {
+            store.favs.push(dow);
+            if (dow === 0 || dow === 6) triggerHumorToast();
+          }
+          renderFavButtons();
+          saveState();
+        };
+      });
+
+      // Botões de Navegação do Wizard
+      document.getElementById('btnNext1').onclick = () => goToStep(2);
+      document.getElementById('btnBack2').onclick = () => goToStep(1);
+      document.getElementById('btnNext2').onclick = () => {
+        applySmartSuggestion();
+        goToStep(3);
+      };
+      document.getElementById('btnBack3').onclick = () => goToStep(2);
+
+      document.querySelectorAll('.step-nav').forEach(btn => {
+        btn.onclick = () => {
+          const target = Number(btn.dataset.goto);
+          if (target === 3 && Object.keys(store.days).length === 0) applySmartSuggestion();
+          goToStep(target);
+        };
+      });
+
+      // Suporte à tecla ENTER para avançar etapas
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.tagName !== 'BUTTON') {
+          e.preventDefault();
+          if (store.step === 1) goToStep(2);
+          else if (store.step === 2) { applySmartSuggestion(); goToStep(3); }
+        }
+      });
+
+      // Controles do Passo 3 (Calendário)
+      document.querySelectorAll('.brush-btn').forEach(btn => {
+        btn.onclick = () => setBrush(btn.dataset.brush);
+      });
+
+      document.getElementById('btnPrevMonth').onclick = () => {
+        store.month--;
+        if (store.month < 0) { store.month = 11; store.year--; }
+        syncStep1Inputs();
+        applySmartSuggestion();
+        renderCalendar();
+      };
+
+      document.getElementById('btnNextMonth').onclick = () => {
+        store.month++;
+        if (store.month > 11) { store.month = 0; store.year++; }
+        syncStep1Inputs();
+        applySmartSuggestion();
+        renderCalendar();
+      };
+
+      document.getElementById('btnAutoFill').onclick = () => {
+        applySmartSuggestion(true);
+        renderCalendar();
+      };
+
+      document.getElementById('btnClearMonth').onclick = () => {
+        clearCurrentMonth();
+        renderCalendar();
+      };
+
+      // Ações de Exportação
+      document.getElementById('btnCopyText').onclick = copySummaryText;
+      document.getElementById('btnShareUrl').onclick = copyShareableLink;
+      document.getElementById('btnGoogleCal').onclick = openGoogleCalendarTemplate;
+      document.getElementById('btnDownloadIcs').onclick = downloadIcsFile;
+    });
+
+    // ============================================================================
+    // 4. FUNÇÕES DE INTERFACE E DROPDOWNS (IBGE + FALLBACK)
+    // ============================================================================
+    function populateStatesDropdown() {
+      const sel = document.getElementById('selectUf');
+      sel.innerHTML = STATES.map(s => `<option value="${s.uf}" ${s.uf === store.uf ? 'selected' : ''}>${s.name} (${s.uf})</option>`).join('');
+    }
+
+    async function populateCitiesDropdown(uf, preferredCity = null) {
+      const sel = document.getElementById('selectCity');
+      sel.innerHTML = `<option value="">Carregando municípios...</option>`;
+
+      const stateObj = STATES.find(s => s.uf === uf) || STATES[16];
+      let cityList = [...stateObj.fallbackCities];
+
+      // Busca todas as cidades do estado na API oficial do IBGE com timeout rápido de 2.5s
+      if (citiesCache[uf]) {
+        cityList = citiesCache[uf];
+      } else {
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 2500);
+          const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`, { signal: controller.signal });
+          clearTimeout(timer);
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              cityList = data.map(c => c.nome);
+              citiesCache[uf] = cityList;
+            }
+          }
+        } catch (err) {
+          // Usa a lista fallback instantaneamente se estiver offline
+        }
+      }
+
+      const targetCity = (preferredCity && cityList.includes(preferredCity)) ? preferredCity : cityList[0];
+      store.city = targetCity;
+
+      sel.innerHTML = cityList.map(c => `<option value="${c}" ${c === targetCity ? 'selected' : ''}>${c}</option>`).join('');
+    }
+
+    function syncStep1Inputs() {
+      const ym = `${store.year}-${String(store.month + 1).padStart(2, '0')}`;
+      document.getElementById('inputMonthYear').value = ym;
+
+      const isPct = store.mode === 'pct';
+      document.getElementById('boxPct').classList.toggle('hidden', !isPct);
+      document.getElementById('boxWk').classList.toggle('hidden', isPct);
+
+      document.getElementById('btnModePct').className = `py-2.5 rounded-lg text-xs font-semibold transition ${isPct ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`;
+      document.getElementById('btnModeWk').className = `py-2.5 rounded-lg text-xs font-semibold transition ${!isPct ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`;
+
+      document.getElementById('rangePct').value = store.valPct;
+      document.getElementById('numPct').value = store.valPct;
+      document.getElementById('rangeWk').value = store.valWk;
+      document.getElementById('numWk').value = store.valWk;
+      document.getElementById('inputAlreadyWent').value = store.alreadyWent;
+    }
+
+    function updateHolidaysPreview() {
+      const holidaysMap = getAllHolidaysMap(store.year, store.uf, store.city);
+      const daysInMonth = new Date(store.year, store.month + 1, 0).getDate();
+      const found = [];
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const mmdd = `${String(store.month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        if (holidaysMap[mmdd]) {
+          const dow = new Date(store.year, store.month, d).getDay();
+          const isWknd = dow === 0 || dow === 6;
+          found.push(`${String(d).padStart(2, '0')}/${String(store.month + 1).padStart(2, '0')} (${holidaysMap[mmdd]}${isWknd ? ' - Fim de semana' : ''})`);
+        }
+      }
+
+      const el = document.getElementById('detectedHolidaysPreview');
+      el.textContent = found.length > 0 ? found.join(' • ') : 'Nenhum feriado oficial neste mês.';
+    }
+
+    function renderFavButtons() {
+      document.querySelectorAll('.fav-btn').forEach(btn => {
+        const dow = Number(btn.dataset.dow);
+        const active = store.favs.includes(dow);
+        btn.className = `fav-btn py-3 rounded-xl border text-xs font-semibold transition ${
+          active
+            ? 'bg-indigo-600/30 border-indigo-500 text-indigo-200 shadow-sm'
+            : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+        }`;
+      });
+    }
+
+    function triggerHumorToast() {
+      const toast = document.getElementById('humorToast');
+      const txt = document.getElementById('humorText');
+      txt.textContent = WEEKEND_JOKES[Math.floor(Math.random() * WEEKEND_JOKES.length)];
+      toast.classList.remove('hidden');
+      clearTimeout(window._humorTimer);
+      window._humorTimer = setTimeout(() => toast.classList.add('hidden'), 4500);
+    }
+
+    function goToStep(stepNum) {
+      store.step = stepNum;
+      for (let i = 1; i <= 3; i++) {
+        document.getElementById(`step${i}`).classList.toggle('active', i === stepNum);
+      }
+      document.querySelectorAll('.step-nav').forEach(btn => {
+        const s = Number(btn.dataset.goto);
+        if (s === stepNum) {
+          btn.className = "step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white transition";
+        } else if (s < stepNum) {
+          btn.className = "step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 transition";
+        } else {
+          btn.className = "step-nav px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-900 text-slate-400 border border-slate-800 transition";
+        }
+      });
+
+      if (stepNum === 2) updateStep2Preview();
+      if (stepNum === 3) renderCalendar();
+    }
+
+    function updateStep2Preview() {
+      const stats = calculateMonthMetrics();
+      const remaining = Math.max(0, stats.requiredDays - store.alreadyWent);
+      document.getElementById('previewCalcBadge').textContent = `Meta: ${stats.requiredDays} dias no mês`;
+      document.getElementById('previewCalcDesc').textContent =
+        `O mês tem ${stats.availableWorkdays} dias úteis (já descontando ${stats.deductedDays} feriado(s) em dia de semana). ` +
+        (store.alreadyWent > 0 ? `Como você já foi ${store.alreadyWent}d, faltam ${remaining} dia(s) para planejar.` : `Vamos sugerir ${stats.requiredDays} dias presenciais.`);
+    }
+
+    // ============================================================================
+    // 5. MOTOR DE SUGESTÃO INTELIGENTE E CÁLCULO DE MÉTRICAS
+    // ============================================================================
+    function formatDateKey(year, month, day) {
+      return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+
+    function clearCurrentMonth() {
+      const daysInMonth = new Date(store.year, store.month + 1, 0).getDate();
+      for (let d = 1; d <= daysInMonth; d++) {
+        delete store.days[formatDateKey(store.year, store.month, d)];
+      }
+      saveState();
+    }
+
+    function applySmartSuggestion(forceReset = false) {
+      const { year, month, uf, city, favs, alreadyWent } = store;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const holidaysMap = getAllHolidaysMap(year, uf, city);
+
+      if (forceReset) clearCurrentMonth();
+
+      // 1. Marca feriados oficiais do mês
+      const availableCandidates = [];
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = formatDateKey(year, month, d);
+        const mmdd = key.slice(5);
+        const dow = new Date(year, month, d).getDay();
+        const isWeekend = dow === 0 || dow === 6;
+
+        if (holidaysMap[mmdd] && !isWeekend) {
+          store.days[key] = 'holiday';
+          continue;
+        }
+
+        const currentStatus = store.days[key];
+        if (currentStatus === 'vacation' || currentStatus === 'holiday') continue;
+
+        // Permite dias de semana ou fins de semana caso o usuário tenha marcado Sáb/Dom nos favoritos
+        if (!isWeekend || favs.includes(dow)) {
+          availableCandidates.push({ d, dow, key, weekIdx: Math.floor((d - 1) / 7) });
+        }
+      }
+
+      // Limpa marcações automáticas anteriores de 'office'/'done' para recalcular limpo
+      availableCandidates.forEach(c => {
+        if (store.days[c.key] === 'office' || store.days[c.key] === 'done') {
+          delete store.days[c.key];
+        }
+      });
+
+      const stats = calculateMonthMetrics();
+      const totalNeeded = stats.requiredDays;
+
+      // 2. Ordena candidatos priorizando: (a) Dias Favoritos e (b) Distribuição equilibrada pelas semanas
+      const favCandidates = availableCandidates.filter(c => favs.includes(c.dow));
+      const nonFavCandidates = availableCandidates.filter(c => !favs.includes(c.dow) && c.dow !== 0 && c.dow !== 6);
+
+      const selectedKeys = [];
+
+      // Pega primeiro dos favoritos
+      for (const item of favCandidates) {
+        if (selectedKeys.length < totalNeeded) selectedKeys.push(item.key);
+      }
+      // Se ainda faltar para bater a meta, distribui nos outros dias úteis
+      for (const item of nonFavCandidates) {
+        if (selectedKeys.length < totalNeeded) selectedKeys.push(item.key);
+      }
+
+      // Ordena cronologicamente para aplicar os "Já Fui" nos primeiros dias e "Planejado" nos seguintes
+      selectedKeys.sort();
+      selectedKeys.forEach((key, idx) => {
+        store.days[key] = idx < alreadyWent ? 'done' : 'office';
+      });
+
+      // Se a pessoa informou que já foi mais dias do que a meta, garante que todos os 'alreadyWent' entrem
+      if (alreadyWent > selectedKeys.length) {
+        let extraNeeded = alreadyWent - selectedKeys.length;
+        for (const item of availableCandidates) {
+          if (extraNeeded <= 0) break;
+          if (!store.days[item.key]) {
+            store.days[item.key] = 'done';
+            extraNeeded--;
+          }
+        }
+      }
+
+      saveState();
+    }
+
+    function calculateMonthMetrics() {
+      const { year, month, uf, city, mode, valPct, valWk } = store;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const holidaysMap = getAllHolidaysMap(year, uf, city);
+
+      let totalWeekdays = 0;
+      let deductedDays = 0;
+      let doneCount = 0;
+      let officeCount = 0;
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = formatDateKey(year, month, d);
+        const mmdd = key.slice(5);
+        const dow = new Date(year, month, d).getDay();
+        const isWeekend = dow === 0 || dow === 6;
+        const status = store.days[key] || (holidaysMap[mmdd] && !isWeekend ? 'holiday' : 'work');
+
+        if (!isWeekend) {
+          totalWeekdays++;
+          if (status === 'holiday' || status === 'vacation') {
+            deductedDays++;
+          }
+        }
+
+        if (status === 'done') doneCount++;
+        if (status === 'office') officeCount++;
+      }
+
+      const availableWorkdays = Math.max(0, totalWeekdays - deductedDays);
+      const effectivePct = mode === 'pct' ? (valPct / 100) : Math.min(1, valWk / 5);
+      const requiredDays = Math.ceil(availableWorkdays * effectivePct);
+      const totalPresence = doneCount + officeCount;
+      const achievedPct = availableWorkdays > 0 ? Math.round((totalPresence / availableWorkdays) * 100) : 0;
+      const missingDays = Math.max(0, requiredDays - totalPresence);
+      const extraBank = Math.max(0, totalPresence - requiredDays);
+
+      return {
+        totalWeekdays,
+        deductedDays,
+        availableWorkdays,
+        requiredDays,
+        doneCount,
+        officeCount,
+        totalPresence,
+        achievedPct,
+        missingDays,
+        extraBank
+      };
+    }
+
+    // ============================================================================
+    // 6. RENDERIZAÇÃO DO CALENDÁRIO E AÇÕES
+    // ============================================================================
+    function setBrush(brush) {
+      store.activeBrush = brush;
+      document.querySelectorAll('.brush-btn').forEach(btn => {
+        const b = btn.dataset.brush;
+        const isSel = b === brush;
+        let style = 'border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700';
+        if (isSel) {
+          if (b === 'office') style = 'border-emerald-500 bg-emerald-500/20 text-emerald-200';
+          if (b === 'done') style = 'border-blue-500 bg-blue-500/20 text-blue-200';
+          if (b === 'vacation') style = 'border-amber-500 bg-amber-500/20 text-amber-200';
+          if (b === 'holiday') style = 'border-rose-500 bg-rose-500/20 text-rose-200';
+        }
+        btn.className = `brush-btn px-2.5 py-1 rounded-lg border text-xs font-medium transition ${style}`;
+      });
+    }
+
+    function renderCalendar() {
+      const { year, month, uf, city } = store;
+      const holidaysMap = getAllHolidaysMap(year, uf, city);
+      const monthLabel = new Date(year, month, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+
+      document.getElementById('lblCalTitle').textContent = monthLabel;
+      document.getElementById('lblCitySubtitle').textContent = `📍 ${city} (${uf}) • Feriados locais ativos`;
+
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+
+      const firstDayDow = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < firstDayDow; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'h-16 sm:h-20 rounded-xl bg-slate-950/30 border border-slate-800/30';
+        grid.appendChild(empty);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = formatDateKey(year, month, d);
+        const mmdd = key.slice(5);
+        const dow = new Date(year, month, d).getDay();
+        const isWeekend = dow === 0 || dow === 6;
+        const holidayName = holidaysMap[mmdd];
+
+        let status = store.days[key];
+        if (!status && holidayName && !isWeekend) {
+          status = 'holiday';
+          store.days[key] = 'holiday';
+        }
+
+        const cell = document.createElement('div');
+        let style = 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700 cursor-pointer';
+        let badge = '<span class="text-[10px] text-slate-600">Remoto</span>';
+
+        if (status === 'office') {
+          style = 'bg-emerald-950/60 border-emerald-500/70 text-emerald-200 cursor-pointer shadow-sm';
+          badge = '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 w-fit">📅 Planejado</span>';
+        } else if (status === 'done') {
+          style = 'bg-blue-950/60 border-blue-500/70 text-blue-200 cursor-pointer shadow-sm';
+          badge = '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 w-fit">✓ Já Fui</span>';
+        } else if (status === 'vacation') {
+          style = 'bg-amber-950/50 border-amber-500/60 text-amber-200 cursor-pointer';
+          badge = '<span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 w-fit">✈️ Férias</span>';
+        } else if (status === 'holiday') {
+          style = 'bg-rose-950/50 border-rose-500/60 text-rose-200 cursor-pointer';
+          const hTitle = holidayName || 'Feriado Local';
+          badge = `<span class="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 truncate max-w-full" title="${hTitle}">🎉 ${hTitle}</span>`;
+        } else if (isWeekend) {
+          style = 'bg-slate-950/40 border-slate-800/40 text-slate-600 cursor-pointer';
+          badge = `<span class="text-[9px] text-slate-600">${holidayName ? '🎉 ' + holidayName : 'Fim de sem.'}</span>`;
+        }
+
+        cell.className = `day-cell h-16 sm:h-20 p-2 rounded-xl border flex flex-col justify-between ${style}`;
+        cell.innerHTML = `<div class="flex justify-between items-center"><span class="text-xs font-bold">${d}</span></div>${badge}`;
+
+        cell.onclick = () => {
+          if (store.days[key] === store.activeBrush) {
+            delete store.days[key];
+          } else {
+            store.days[key] = store.activeBrush;
+          }
+          if ( (dow === 0 || dow === 6) && (store.days[key] === 'office' || store.days[key] === 'done') ) {
+            triggerHumorToast();
+          }
+          saveState();
+          renderCalendar();
+        };
+
+        grid.appendChild(cell);
+      }
+
+      // Atualiza Painel de Métricas
+      const m = calculateMonthMetrics();
+      document.getElementById('statWorkdays').textContent = m.availableWorkdays;
+      document.getElementById('statDeducted').textContent = `${m.deductedDays} descontado(s)`;
+      document.getElementById('statTarget').textContent = m.requiredDays;
+      document.getElementById('statTargetPct').textContent = store.mode === 'pct' ? `Meta: ${store.valPct}%` : `Meta: ${store.valWk}x/sem`;
+      document.getElementById('statTotal').textContent = m.totalPresence;
+      document.getElementById('statBreakdown').textContent = `${m.doneCount} feito(s) / ${m.officeCount} plan.`;
+      document.getElementById('statPct').textContent = `${m.achievedPct}%`;
+      document.getElementById('statMissing').textContent = m.missingDays === 0 ? 'Meta batida!' : `Faltam ${m.missingDays}d`;
+      document.getElementById('statBank').textContent = `+${m.extraBank}d`;
+      document.getElementById('statBankSub').textContent = m.extraBank > 0 ? 'Dias acumulados' : 'Sem excedente';
+
+      const statusBadge = document.getElementById('lblStatusBadge');
+      if (m.totalPresence >= m.requiredDays && m.requiredDays > 0) {
+        statusBadge.textContent = m.extraBank > 0 ? `Meta Superada (+${m.extraBank}d no banco)` : 'Meta Atingida!';
+        statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+      } else {
+        statusBadge.textContent = `Faltam ${m.missingDays} dia(s)`;
+        statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40';
+      }
+
+      const listDates = getSelectedDatesFormatted();
+      document.getElementById('txtSummaryPreview').textContent = listDates.length > 0
+        ? `📅 Presenciais (${listDates.length}d): ${listDates.map(i => i.label).join(', ')}`
+        : 'Nenhum dia presencial marcado neste mês.';
+    }
+
+    function getSelectedDatesFormatted() {
+      const { year, month } = store;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const result = [];
+      for (let d = 1; d <= daysInMonth; d++) {
+        const key = formatDateKey(year, month, d);
+        const st = store.days[key];
+        if (st === 'office' || st === 'done') {
+          const dd = String(d).padStart(2, '0');
+          const mm = String(month + 1).padStart(2, '0');
+          result.push({
+            key,
+            day: d,
+            status: st,
+            label: `${dd}/${mm}${st === 'done' ? '(✓)' : ''}`
+          });
+        }
+      }
+      return result;
+    }
+
+    function copySummaryText() {
+      const list = getSelectedDatesFormatted();
+      const m = calculateMonthMetrics();
+      const monthName = new Date(store.year, store.month, 1).toLocaleDateString('pt-BR', { month: 'long' });
+      const text = list.length > 0
+        ? `📅 Minha escala presencial em ${monthName} (${store.city}-${store.uf}) — ${list.length}/${m.requiredDays} dias (${m.achievedPct}%): ${list.map(i => i.label).join(', ')}`
+        : `Nenhum dia presencial planejado para ${monthName}.`;
+
+      navigator.clipboard.writeText(text);
+      const btn = document.getElementById('btnCopyText');
+      const old = btn.textContent;
+      btn.textContent = '✅ Texto Copiado!';
+      setTimeout(() => btn.textContent = old, 2000);
+    }
+
+    function copyShareableLink() {
+      const payload = {
+        year: store.year, month: store.month, uf: store.uf, city: store.city,
+        mode: store.mode, valPct: store.valPct, valWk: store.valWk, days: store.days
+      };
+      const hash = btoa(encodeURIComponent(JSON.stringify(payload)));
+      const url = `${window.location.origin}${window.location.pathname}#d=${hash}`;
+      navigator.clipboard.writeText(url);
+
+      const btn = document.getElementById('btnShareUrl');
+      const old = btn.textContent;
+      btn.textContent = '✅ Link Copiado!';
+      setTimeout(() => btn.textContent = old, 2000);
+    }
+
+    function openGoogleCalendarTemplate() {
+      const list = getSelectedDatesFormatted();
+      if (list.length === 0) {
+        alert('Marque pelo menos um dia presencial no calendário primeiro.');
+        return;
+      }
+      const first = list.find(i => i.status === 'office') || list[0];
+      const dt = first.key.replace(/-/g, '');
+      const title = encodeURIComponent(`🏢 Trabalho Presencial (${store.city})`);
+      const details = encodeURIComponent(`Escala presencial do mês: ${list.map(i => i.label).join(', ')}`);
+      window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dt}/${dt}&details=${details}`, '_blank');
+    }
+
+    function downloadIcsFile() {
+      const list = getSelectedDatesFormatted();
+      if (list.length === 0) {
+        alert('Marque pelo menos um dia presencial para exportar.');
+        return;
+      }
+      let ics = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Planejador Presencial//PT-BR\r\n";
+      list.forEach(item => {
+        const dt = item.key.replace(/-/g, '');
+        ics += "BEGIN:VEVENT\r\n";
+        ics += `UID:${dt}-presencial@planejador\r\n`;
+        ics += `DTSTART;VALUE=DATE:${dt}\r\n`;
+        ics += `DTEND;VALUE=DATE:${dt}\r\n`;
+        ics += `SUMMARY:🏢 Trabalho Presencial (${store.city})\r\n`;
+        ics += "END:VEVENT\r\n";
+      });
+      ics += "END:VCALENDAR";
+
+      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `presencial-${store.year}-${String(store.month + 1).padStart(2, '0')}.ics`;
+      link.click();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+    }
+
+    function loadFromStorageOrUrl() {
+      if (window.location.hash.startsWith('#d=')) {
+        try {
+          const raw = decodeURIComponent(atob(window.location.hash.replace('#d=', '')));
+          const parsed = JSON.parse(raw);
+          Object.assign(store, parsed);
+          store.step = 3;
+          setTimeout(() => goToStep(3), 50);
+          return;
+        } catch (e) {}
+      }
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          Object.assign(store, parsed, { step: 1 });
+        } catch (e) {}
+      }
+    }
+  </script>
+</body>
+</html>
